@@ -138,6 +138,10 @@ var common = {
                 tempArray[i] = ['context.beginPath();\n' + 'context.moveTo(' + point[0] + ', ' + point[1] + ');\n' + 'context.lineTo(' + point[2] + ', ' + point[3] + ');\n' + this.strokeOrFill(p[2])];
             }
 
+            if (p[0] === 'pencil') {
+                tempArray[i] = ['context.beginPath();\n' + 'context.moveTo(' + point[0] + ', ' + point[1] + ');\n' + 'context.lineTo(' + point[2] + ', ' + point[3] + ');\n' + this.strokeOrFill(p[2])];
+            }
+
             if (p[0] === 'text') {
                 tempArray[i] = [this.strokeOrFill(p[2]) + '\ncontext.fillText(' + point[0] + ', ' + point[1] + ', ' + point[2] + ');'];
             }
@@ -216,6 +220,15 @@ var common = {
             }
 
             if (p[0] === 'line') {
+                output += this.shortenHelper(p[0], [
+                    getPoint(point[0], x, 'x'),
+                    getPoint(point[1], y, 'y'),
+                    getPoint(point[2], x, 'x'),
+                    getPoint(point[3], y, 'y')
+                ], p[2]);
+            }
+
+            if (p[0] === 'pencil') {
                 output += this.shortenHelper(p[0], [
                     getPoint(point[0], x, 'x'),
                     getPoint(point[1], y, 'y'),
@@ -341,10 +354,11 @@ var common = {
             }
 
             if (p[0] === 'line') {
-                output += 'context.beginPath();\n' + 'context.moveTo(' + getPoint(point[0], x, 'x') + ', ' + getPoint(point[1], y, 'y') + ');\n' + 'context.lineTo(' + getPoint(point[2], x, 'x') + ', ' + getPoint(point[3], y, 'y') + ');\n'
+                output += 'context.beginPath();\n' + 'context.moveTo(' + getPoint(point[0], x, 'x') + ', ' + getPoint(point[1], y, 'y') + ');\n' + 'context.lineTo(' + getPoint(point[2], x, 'x') + ', ' + getPoint(point[3], y, 'y') + ');\n' + this.strokeOrFill(p[2]);
+            }
 
-                    +
-                    this.strokeOrFill(p[2]);
+            if (p[0] === 'pencil') {
+                output += 'context.beginPath();\n' + 'context.moveTo(' + getPoint(point[0], x, 'x') + ', ' + getPoint(point[1], y, 'y') + ');\n' + 'context.lineTo(' + getPoint(point[2], x, 'x') + ', ' + getPoint(point[3], y, 'y') + ');\n' + this.strokeOrFill(p[2]);
             }
 
             if (p[0] === 'arrow') {

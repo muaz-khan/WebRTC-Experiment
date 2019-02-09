@@ -28,6 +28,12 @@ node server.js
 
 Now open `http://localhost:9001/`.
 
+# Disclaimer
+
+There is no warranty, expressed or implied, associated with this product. Use at your own risk.
+
+* https://www.webrtc-experiment.com/disclaimer/
+
 # License
 
 [All these demos](https://github.com/muaz-khan/Ffmpeg.js) are released under [MIT licence](https://www.webrtc-experiment.com/licence/) . Copyright (c) [Muaz Khan](http://www.MuazKhan.com/).

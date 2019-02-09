@@ -121,15 +121,11 @@ function getRMCMediaElement(stream, callback, connection) {
 
     mediaElement.srcObject = stream;
 
-    try {
-        mediaElement.setAttributeNode(document.createAttribute('autoplay'));
-        mediaElement.setAttributeNode(document.createAttribute('playsinline'));
-        mediaElement.setAttributeNode(document.createAttribute('controls'));
-    } catch (e) {
-        mediaElement.setAttribute('autoplay', true);
-        mediaElement.setAttribute('playsinline', true);
-        mediaElement.setAttribute('controls', true);
-    }
+    mediaElement.setAttribute('autoplay', true);
+    mediaElement.setAttribute('playsinline', true);
+    mediaElement.setAttribute('controls', true);
+    mediaElement.setAttribute('muted', false);
+    mediaElement.setAttribute('volume', 1);
 
     // http://goo.gl/WZ5nFl
     // Firefox don't yet support onended for any stream (remote/local)

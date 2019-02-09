@@ -40,8 +40,12 @@ if (DetectRTC.browser.isChrome && DetectRTC.browser.version >= 35) {
 } else if (DetectRTC.browser.isFirefox && DetectRTC.browser.version >= 34) {
     isScreenCapturingSupported = true;
 } else if (DetectRTC.browser.isEdge && DetectRTC.browser.version >= 17) {
-    isScreenCapturingSupported = true; // navigator.getDisplayMedia
+    isScreenCapturingSupported = true;
 } else if (DetectRTC.osName === 'Android' && DetectRTC.browser.isChrome) {
+    isScreenCapturingSupported = true;
+}
+
+if(!!navigator.getDisplayMedia || (navigator.mediaDevices && navigator.mediaDevices.getDisplayMedia)) {
     isScreenCapturingSupported = true;
 }
 

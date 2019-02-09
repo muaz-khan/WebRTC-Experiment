@@ -36,6 +36,12 @@ There is android-app as well:
 | Screen Capturing in Chrome | [github/desktopCapture](https://github.com/muaz-khan/Chrome-Extensions/tree/master/desktopCapture) | [![Install Chrome Extension](https://raw.github.com/GoogleChrome/chrome-app-samples/master/tryitnowbutton_small.png)](https://chrome.google.com/webstore/detail/screen-capturing/ajhifddimkapgcifgcodmmfdlknahffk) |
 | Tab Capturing in Chrome | [gitjub/tabCapture](https://github.com/muaz-khan/Chrome-Extensions/tree/master/tabCapture) | [![Install Chrome Extension](https://raw.github.com/GoogleChrome/chrome-app-samples/master/tryitnowbutton_small.png)](https://chrome.google.com/webstore/detail/tab-capturing-sharing/pcnepejfgcmidedoimegcafiabjnodhk) |
 
+## Disclaimer
+
+There is no warranty, expressed or implied, associated with this product. Use at your own risk.
+
+* https://www.webrtc-experiment.com/disclaimer/
+
 ## License
 
-[Chrome-Extensions](https://github.com/muaz-khan/Chrome-Extensions) are released under [MIT licence](https://www.webrtc-experiment.com/licence/) . Copyright (c) [Muaz Khan](http://www.MuazKhan.com/).
+[Chrome-Extensions](https://github.com/muaz-khan/Chrome-Extensions) are released under [MIT license](https://github.com/muaz-khan/Chrome-Extensions/blob/master/LICENSE) . Copyright (c) [Muaz Khan](https://MuazKhan.com).

@@ -22,12 +22,10 @@
 <div style="display: none;">
     <video controls autoplay playsinline id="preview-video"></video>
 </div>
-<div id="element-to-record" style="border: 5px solid gray; border-radius: 5px; padding: 20px; margin: 20px; min-height: 300px;">
-    <input value="type something"><br><br>
+<div id="element-to-record" style="border: 5px solid gray; border-radius: 5px; padding: 20px; margin: 20px;width: 480px; height: 360px;">
+    <input value="type something" style="width: 80%;font-size: 16px;"><br><br>
     <span id="timer"></span><br><br>
     <span id="counter"></span><br><br>
-
-    <canvas id="canvas-for-video" crossOrigin="Anonymous" width=320 height=240></canvas>
 </div>
 
 <canvas id="background-canvas" style="position:absolute; top:-99999999px; left:-9999999999px;"></canvas>
@@ -71,33 +69,6 @@ function getRandomColor() {
         requestAnimationFrame(looper);
     });
 })();
-
-var canvasX = document.getElementById('canvas-for-video');
-canvasX.width = 320;
-canvasX.height = 240;
-var contextX = canvasX.getContext('2d');
-
-var index=0;
-
-function looper2() {
-    index++;
-    if(typeof timer !== 'undefined' && index % 100 == 0) {
-        timer.style.color = getRandomColor();
-    }
-
-    contextX.drawImage(videoX, 0, 0, canvasX.width, canvasX.height);
-    requestAnimationFrame(looper2);
-}
-var videoX = document.createElement('video');
-videoX.onloadedmetadata = function() {
-    looper2();
-};
-videoX.crossOrigin = 'Anonymous';
-videoX.volume=0;
-videoX.autoplay = true;
-videoX.src = 'https://storage.googleapis.com/media-session/caminandes/short.mp4';
-videoX.style = 'position: absolute; top: -99999999999; left: -99999999999;';
-document.body.appendChild(videoX);
 
 var recorder = new RecordRTC(canvas2d, {
     type: 'canvas'

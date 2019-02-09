@@ -36,6 +36,12 @@
 
 * WebRTC Block & [WebRTC Leak Prevent](https://chrome.google.com/webstore/detail/webrtc-network-limiter/npeicpdbkakmehahjeeohfdhnlpdklia?hl=en)
 
+## Disclaimer
+
+There is no warranty, expressed or implied, associated with this product. Use at your own risk.
+
+* https://www.webrtc-experiment.com/disclaimer/
+
 ## License
 
-[Chrome-Extensions](https://github.com/muaz-khan/Chrome-Extensions) are released under [MIT licence](https://www.webrtc-experiment.com/licence/) . Copyright (c) [Muaz Khan](http://www.MuazKhan.com/).
+[Chrome-Extensions](https://github.com/muaz-khan/Chrome-Extensions) are released under [MIT license](https://github.com/muaz-khan/Chrome-Extensions/blob/master/LICENSE) . Copyright (c) [Muaz Khan](https://MuazKhan.com).

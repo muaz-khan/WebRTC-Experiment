@@ -1,0 +1,113 @@
+<title>isTypeSupported | RecordRTC</title>
+<style type="text/css">
+html, body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+    font-size: 1em;
+}
+
+table {
+  background-color: #fff;
+  overflow: auto;
+  width: 100%;
+  max-width: 100%;
+  margin-bottom: 1rem;
+  border-left: 1px solid #eceeef;
+  border-bottom: 1px solid #eceeef;
+}
+
+table th,
+table td {
+  padding: 0.75rem;
+  vertical-align: top;
+  border-top: 1px solid #eceeef;
+  border-right: 1px solid #eceeef;
+}
+
+table thead th {
+  vertical-align: bottom;
+  border-bottom: 2px solid #eceeef;
+}
+
+table tbody + tbody {
+  border-top: 2px solid #eceeef;
+}
+
+tbody td:nth-child(1), thead th:nth-child(1) {
+    text-align: right;
+}
+
+tbody td:nth-child(2) {
+    text-align: center;
+}
+
+h1, p {
+    text-align: center;
+}
+
+.yes, .no {
+    width: 22px;
+}
+</style>
+
+<h1>isTypeSupported | RecordRTC</h1>
+
+<p>This page is testing only {recorderType: <a href="https://recordrtc.org/MediaStreamRecorder.html">MediaStreamRecorder</a>, mimeType: below }</p>
+
+<table>
+    <thead>
+        <th>Mime-Type</th>
+        <th>isTypeSupported</th>
+        <th>List of Browsers</th>
+    </thead>
+    <tbody id="output-body"></tbody>
+</table>
+
+<script>
+var mimeTypes = [
+    ['video/webm', ['Chrome', 'Firefox', 'Safari']],
+    ['video/mp4', []],
+    ['video/mpeg', []],
+    ['audio/wav', []],
+    ['audio/webm', ['Chrome', 'Firefox', 'Safari']],
+    ['audio/ogg', ['Firefox']],
+    ['video/webm;codecs=vp8', ['Chrome', 'Firefox', 'Safari']],
+    ['video/webm;codecs=vp9', ['Chrome']],
+    ['video/webm;codecs=h264', ['Chrome']],
+    ['video/x-matroska;codecs=avc1', ['Chrome']]
+];
+
+var outputBody = document.querySelector('#output-body');
+
+if(typeof MediaRecorder === 'undefined') {
+    window.MediaRecorder = {
+        isTypeSupported: function() {
+            return false;
+        }
+    };
+}
+
+mimeTypes.forEach(item => {
+    var tr = document.createElement('tr');
+    var innerHTML = '';
+    innerHTML += '<td>' + item[0] + '</td>';
+    if(MediaRecorder.isTypeSupported(item[0])) {
+        innerHTML += '<td><img class="yes" src="https://cdn.webrtc-experiment.com/images/yes.png"></td>';
+    }
+    else {
+        innerHTML += '<td><img class="no" src="https://cdn.webrtc-experiment.com/images/no.png"></td>';
+    }
+
+    if(item[1].length) {
+        innerHTML += '<td>' + item[1].join(', ') + '</td>';
+    }
+    else {
+        innerHTML += '<td>None</td>';
+    }
+
+    tr.innerHTML = innerHTML;
+    outputBody.appendChild(tr);
+});
+</script>
+
+<footer style="margin-top: 20px;"><small id="send-message"></small></footer>
+<script src="https://cdn.webrtc-experiment.com/common.js"></script>

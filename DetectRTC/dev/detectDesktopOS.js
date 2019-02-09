@@ -7,6 +7,9 @@ function detectDesktopOS() {
 
     var os = unknown;
     var clientStrings = [{
+        s: 'Chrome OS',
+        r: /CrOS/
+    }, {
         s: 'Windows 10',
         r: /(Windows 10.0|Windows NT 10.0)/
     }, {

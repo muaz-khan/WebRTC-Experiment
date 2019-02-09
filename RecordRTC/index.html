@@ -1,4 +1,4 @@
-<script>window.demoVersion = '2019.01.13';</script>
+<script>window.demoVersion = '2019.01.20';</script>
 
 <!--
 > Muaz Khan     - www.MuazKhan.com
@@ -83,6 +83,9 @@
     <!-- web streams API polyfill to support Firefox -->
     <script src="https://unpkg.com/@mattiasbuelens/web-streams-polyfill/dist/polyfill.min.js"></script>
 
+    <!-- ../libs/DBML.js to fix video seeking issues -->
+    <script src="https://cdn.webrtc-experiment.com/EBML.js"></script>
+
     <!-- for Edge/FF/Chrome/Opera/etc. getUserMedia support -->
     <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
     <script src="https://cdn.webrtc-experiment.com/DetectRTC.js"> </script>
@@ -151,6 +154,11 @@
 
                 <button id="btn-start-recording">Start Recording</button>
                 <button id="btn-pause-recording" style="display: none; font-size: 15px;">Pause</button>
+
+                <div style="display: inline-block;">
+                    <input type="checkbox" id="chk-fixSeeking" style="margin:0;width:auto;" title="Fix video seeking issues?">
+                    <label for="chk-fixSeeking" style="font-size: 15px;margin:0;width: auto;cursor: pointer;-webkit-user-select:none;user-select:none;" title="Fix video seeking issues?">Fix Seeking Issues?</label>
+                </div>
 
                 <hr style="border-top: 0;border-bottom: 1px solid rgb(189, 189, 189);margin: 4px -12px;margin-top: 8px;">
                 <select class="media-resolutions">
@@ -288,6 +296,8 @@
                 btnStartRecording.disabled = false;
                 recordingMedia.disabled = false;
                 mediaContainerFormat.disabled = false;
+
+                chkFixSeeking.parentNode.style.display = 'inline-block';
             };
 
             btnStartRecording.onclick = function(event) {
@@ -354,6 +364,22 @@
                                     url = URL.createObjectURL(blob);
                                 }
 
+                                if(chkFixSeeking.checked === true) {
+                                    // to fix video seeking issues
+                                    getSeekableBlob(button.recordRTC.getBlob(), function(seekableBlob) {
+                                        button.recordRTC.getBlob = function() {
+                                            return seekableBlob;
+                                        };
+
+                                        url = URL.createObjectURL(seekableBlob);
+
+                                        button.recordingEndedCallback(url);
+                                        saveToDiskOrOpenNewTab(button.recordRTC);
+                                        stopStream();
+                                    })
+                                    return;
+                                }
+
                                 button.recordingEndedCallback(url);
                                 saveToDiskOrOpenNewTab(button.recordRTC);
                                 stopStream();
@@ -377,6 +403,8 @@
 
                         button.innerHTML = 'Stop Recording';
                         button.disabled = false;
+
+                        chkFixSeeking.parentNode.style.display = 'none';
                     },
                     onMediaStopped: function() {
                         button.innerHTML = 'Start Recording';
@@ -384,6 +412,8 @@
                         if(!button.disableStateWaiting) {
                             button.disabled = false;
                         }
+
+                        chkFixSeeking.parentNode.style.display = 'inline-block';
                     },
                     onMediaCapturingFailed: function(error) {
                         console.error('onMediaCapturingFailed:', error);
@@ -1876,6 +1906,21 @@
         </script>
 
         <script>
+            var chkFixSeeking = document.querySelector('#chk-fixSeeking');
+            chkFixSeeking.onchange = function() {
+                if(this.checked === true) {
+                    localStorage.setItem(this.id, 'true');
+                }
+                else {
+                    localStorage.removeItem(this.id);
+                }
+            };
+            if(localStorage.getItem(chkFixSeeking.id) === 'true') {
+                chkFixSeeking.checked = true;
+            }
+        </script>
+
+        <script>
             var chkTimeSlice = document.querySelector('#chk-timeSlice');
             var timeSlice = false;
 
@@ -1911,6 +1956,7 @@
                 btnPauseRecording.disabled = true;
                 if(btnPauseRecording.innerHTML === 'Pause') {
                     btnStartRecording.disabled = true;
+                    chkFixSeeking.parentNode.style.display = 'none';
                     btnStartRecording.style.fontSize = '15px';
                     btnStartRecording.recordRTC.pauseRecording();
                     recordingPlayer.parentNode.parentNode.querySelector('h2').innerHTML = 'Recording status: paused';
@@ -1925,6 +1971,7 @@
 
                 if(btnPauseRecording.innerHTML === 'Resume Recording') {
                     btnStartRecording.disabled = false;
+                    chkFixSeeking.parentNode.style.display = 'none';
                     btnStartRecording.style.fontSize = 'inherit';
                     btnStartRecording.recordRTC.resumeRecording();
                     recordingPlayer.parentNode.parentNode.querySelector('h2').innerHTML = '<img src="https://cdn.webrtc-experiment.com/images/progress.gif">';

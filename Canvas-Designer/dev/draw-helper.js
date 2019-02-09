@@ -53,6 +53,13 @@ var drawHelper = {
 
         this.handleOptions(context, options);
     },
+    pencil: function(context, point, options) {
+        context.beginPath();
+        context.moveTo(point[0], point[1]);
+        context.lineTo(point[2], point[3]);
+
+        this.handleOptions(context, options);
+    },
     marker: function(context, point, options) {
         context.beginPath();
         context.moveTo(point[0], point[1]);

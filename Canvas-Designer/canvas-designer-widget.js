@@ -183,6 +183,14 @@ function CanvasDesigner() {
     designer.undo = function(index) {
         if (!designer.iframe) return;
 
+        if(typeof index === 'string' && tools[index]) {
+            designer.postMessage({
+                undo: true,
+                tool: index
+            });
+            return;
+        }
+
         designer.postMessage({
             undo: true,
             index: index || designer.pointsLength - 1 || -1

@@ -66,14 +66,14 @@ function selfInvoker()
     /*
     $upload_max_filesize = return_bytes(ini_get('upload_max_filesize'));
 
-    if ($_FILES[$file_idx]['size'] > $upload_max_filesize)
+    if ($_FILES[$file_idx]['size'] > $upload_max_filesize) {
        echo 'upload_max_filesize exceeded.';
        return;
     }
 
     $post_max_size = return_bytes(ini_get('post_max_size'));
 
-    if ($_FILES[$file_idx]['size'] > $post_max_size)
+    if ($_FILES[$file_idx]['size'] > $post_max_size) {
        echo 'post_max_size exceeded.';
        return;
     }
@@ -86,7 +86,7 @@ function selfInvoker()
         'webm',
         'wav',
         'mp4',
-        "mkv",
+        'mkv',
         'mp3',
         'ogg'
     );

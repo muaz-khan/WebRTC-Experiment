@@ -93,6 +93,12 @@ const getSupoortedFormats = [{
 2. Second step is, pass two parameters on `startRecording`. First paramter is named as `recording-formats` and last parameter is named as `recording-start-callback`.
 3. Manually stop the recording using `stopRecording` method. Callback contains two arguments. First argument is `Blob` object and second argument is `error` string.
 
-# License
+## Disclaimer
 
-All [Chrome-Extensions](https://github.com/muaz-khan/Chrome-Extensions) are released under [MIT licence](https://www.webrtc-experiment.com/licence/) . Copyright (c) [Muaz Khan](https://github.com/muaz-khan).
+There is no warranty, expressed or implied, associated with this product. Use at your own risk.
+
+* https://www.webrtc-experiment.com/disclaimer/
+
+## License
+
+[Chrome-Extensions](https://github.com/muaz-khan/Chrome-Extensions) are released under [MIT license](https://github.com/muaz-khan/Chrome-Extensions/blob/master/LICENSE) . Copyright (c) [Muaz Khan](https://MuazKhan.com).

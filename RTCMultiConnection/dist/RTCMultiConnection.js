@@ -1,6 +1,6 @@
 'use strict';
 
-// Last time updated: 2019-01-13 5:11:44 AM UTC
+// Last time updated: 2019-02-06 12:47:47 PM UTC
 
 // _________________________
 // RTCMultiConnection v3.6.8
@@ -2175,15 +2175,11 @@ var RTCMultiConnection = function(roomid, forceOptions) {
 
         mediaElement.srcObject = stream;
 
-        try {
-            mediaElement.setAttributeNode(document.createAttribute('autoplay'));
-            mediaElement.setAttributeNode(document.createAttribute('playsinline'));
-            mediaElement.setAttributeNode(document.createAttribute('controls'));
-        } catch (e) {
-            mediaElement.setAttribute('autoplay', true);
-            mediaElement.setAttribute('playsinline', true);
-            mediaElement.setAttribute('controls', true);
-        }
+        mediaElement.setAttribute('autoplay', true);
+        mediaElement.setAttribute('playsinline', true);
+        mediaElement.setAttribute('controls', true);
+        mediaElement.setAttribute('muted', false);
+        mediaElement.setAttribute('volume', 1);
 
         // http://goo.gl/WZ5nFl
         // Firefox don't yet support onended for any stream (remote/local)

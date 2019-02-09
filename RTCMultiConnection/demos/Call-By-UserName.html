@@ -1,4 +1,4 @@
-<!-- Demo version: 2018.10.01 -->
+<!-- Demo version: 2019.02.01 -->
 
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
@@ -85,7 +85,7 @@
                 <input type="text" id="callee-username" value="he" autocorrect=off autocapitalize=off size=20>
             </td>
             <td>
-                <button id="join-callee-using-his-username">Make a Video Call</button>
+                <button id="join-callee-using-his-username" disabled>Make a Video Call</button>
             </td>
         </tr>
 
@@ -205,7 +205,11 @@ connection.onMediaError = function(e) {
             deviceId: secondaryMic
         };
 
-        connection.join(connection.sessionid);
+        connection.join(connection.sessionid, function(isRoomJoined, roomid, error) {
+          if(error) {
+            alert(error);
+          }
+        });
     }
 };
 
@@ -223,7 +227,11 @@ joinCalleeUsingHisUsername.onclick = function() {
             return;
         }
 
-        connection.join(username);
+        connection.join(username, function(isRoomJoined, roomid, error) {
+          if(error) {
+            alert(error);
+          }
+        });
     });
 
     setTimeout(function() {
@@ -237,11 +245,16 @@ currentUserName.onkeyup = currentUserName.onpaste = currentUserName.oninput = fu
     localStorage.setItem(this.id, this.value);
 };
 currentUserName.value = localStorage.getItem(currentUserName.id) || connection.token();
-connection.open(currentUserName.value);
 
 document.getElementById('change-your-own-username').onclick = function() {
     this.disabled = true;
-    location.reload();
+    connection.open(currentUserName.value, function(isRoomOpened, roomid, error) {
+      if(error) {
+        alert(error);
+      }
+
+      joinCalleeUsingHisUsername.disabled = false;
+    });
 };
 
 // callee

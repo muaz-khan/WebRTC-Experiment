@@ -1,4 +1,4 @@
-// Last time updated: 2018-12-24 8:45:05 AM UTC
+// Last time updated: 2019-02-08 7:50:22 AM UTC
 
 // _______________
 // Canvas-Designer
@@ -149,6 +149,10 @@
                     tempArray[i] = ['context.beginPath();\n' + 'context.moveTo(' + point[0] + ', ' + point[1] + ');\n' + 'context.lineTo(' + point[2] + ', ' + point[3] + ');\n' + this.strokeOrFill(p[2])];
                 }
 
+                if (p[0] === 'pencil') {
+                    tempArray[i] = ['context.beginPath();\n' + 'context.moveTo(' + point[0] + ', ' + point[1] + ');\n' + 'context.lineTo(' + point[2] + ', ' + point[3] + ');\n' + this.strokeOrFill(p[2])];
+                }
+
                 if (p[0] === 'text') {
                     tempArray[i] = [this.strokeOrFill(p[2]) + '\ncontext.fillText(' + point[0] + ', ' + point[1] + ', ' + point[2] + ');'];
                 }
@@ -227,6 +231,15 @@
                 }
 
                 if (p[0] === 'line') {
+                    output += this.shortenHelper(p[0], [
+                        getPoint(point[0], x, 'x'),
+                        getPoint(point[1], y, 'y'),
+                        getPoint(point[2], x, 'x'),
+                        getPoint(point[3], y, 'y')
+                    ], p[2]);
+                }
+
+                if (p[0] === 'pencil') {
                     output += this.shortenHelper(p[0], [
                         getPoint(point[0], x, 'x'),
                         getPoint(point[1], y, 'y'),
@@ -352,10 +365,11 @@
                 }
 
                 if (p[0] === 'line') {
-                    output += 'context.beginPath();\n' + 'context.moveTo(' + getPoint(point[0], x, 'x') + ', ' + getPoint(point[1], y, 'y') + ');\n' + 'context.lineTo(' + getPoint(point[2], x, 'x') + ', ' + getPoint(point[3], y, 'y') + ');\n'
+                    output += 'context.beginPath();\n' + 'context.moveTo(' + getPoint(point[0], x, 'x') + ', ' + getPoint(point[1], y, 'y') + ');\n' + 'context.lineTo(' + getPoint(point[2], x, 'x') + ', ' + getPoint(point[3], y, 'y') + ');\n' + this.strokeOrFill(p[2]);
+                }
 
-                        +
-                        this.strokeOrFill(p[2]);
+                if (p[0] === 'pencil') {
+                    output += 'context.beginPath();\n' + 'context.moveTo(' + getPoint(point[0], x, 'x') + ', ' + getPoint(point[1], y, 'y') + ');\n' + 'context.lineTo(' + getPoint(point[2], x, 'x') + ', ' + getPoint(point[3], y, 'y') + ');\n' + this.strokeOrFill(p[2]);
                 }
 
                 if (p[0] === 'arrow') {
@@ -706,6 +720,13 @@
 
             this.handleOptions(context, options);
         },
+        pencil: function(context, point, options) {
+            context.beginPath();
+            context.moveTo(point[0], point[1]);
+            context.lineTo(point[2], point[3]);
+
+            this.handleOptions(context, options);
+        },
         marker: function(context, point, options) {
             context.beginPath();
             context.moveTo(point[0], point[1]);
@@ -850,6 +871,17 @@
                     point = p[1];
 
                 if (p[0] === 'line') {
+
+                    if (dHelper.isPointInPath(x, y, point[0], point[1])) {
+                        g.pointsToMove = 'head';
+                    }
+
+                    if (dHelper.isPointInPath(x, y, point[2], point[3])) {
+                        g.pointsToMove = 'tail';
+                    }
+                }
+
+                if (p[0] === 'pencil') {
 
                     if (dHelper.isPointInPath(x, y, point[0], point[1])) {
                         g.pointsToMove = 'head';
@@ -1023,6 +1055,16 @@
             }
 
             if (p[0] === 'line') {
+
+                tempContext.beginPath();
+
+                tempContext.arc(point[0], point[1], 10, Math.PI * 2, 0, !1);
+                tempContext.arc(point[2], point[3], 10, Math.PI * 2, 0, !1);
+
+                tempContext.fill();
+            }
+
+            if (p[0] === 'pencil') {
 
                 tempContext.beginPath();
 
@@ -1217,6 +1259,17 @@
                     ];
                 }
 
+                if (p[0] === 'pencil') {
+                    points[i] = [p[0],
+                        [
+                            getPoint(x, prevX, point[0]),
+                            getPoint(y, prevY, point[1]),
+                            getPoint(x, prevX, point[2]),
+                            getPoint(y, prevY, point[3])
+                        ], p[2]
+                    ];
+                }
+
                 if (p[0] === 'arrow') {
                     points[i] = [p[0],
                         [
@@ -1330,6 +1383,21 @@
                 isMoveAllPoints = g.pointsToMove === 'all';
 
             if (p[0] === 'line') {
+
+                if (g.pointsToMove === 'head' || isMoveAllPoints) {
+                    point[0] = getPoint(x, prevX, point[0]);
+                    point[1] = getPoint(y, prevY, point[1]);
+                }
+
+                if (g.pointsToMove === 'tail' || isMoveAllPoints) {
+                    point[2] = getPoint(x, prevX, point[2]);
+                    point[3] = getPoint(y, prevY, point[3]);
+                }
+
+                points[points.length - 1] = [p[0], point, p[2]];
+            }
+
+            if (p[0] === 'pencil') {
 
                 if (g.pointsToMove === 'head' || isMoveAllPoints) {
                     point[0] = getPoint(x, prevX, point[0]);
@@ -1615,14 +1683,29 @@
             // make sure that pencil is drawing shapes even 
             // if mouse is down but mouse isn't moving
             tempContext.lineCap = 'round';
-            pencilDrawHelper.line(tempContext, [t.prevX, t.prevY, x, y]);
+            pencilDrawHelper.pencil(tempContext, [t.prevX, t.prevY, x, y]);
 
-            points[points.length] = ['line', [t.prevX, t.prevY, x, y], pencilDrawHelper.getOptions()];
+            points[points.length] = ['pencil', [t.prevX, t.prevY, x, y], pencilDrawHelper.getOptions(), 'start'];
 
             t.prevX = x;
             t.prevY = y;
         },
         mouseup: function(e) {
+            var x = e.pageX - canvas.offsetLeft,
+                y = e.pageY - canvas.offsetTop;
+
+            var t = this;
+
+            if (t.ismousedown) {
+                tempContext.lineCap = 'round';
+                pencilDrawHelper.pencil(tempContext, [t.prevX, t.prevY, x, y]);
+
+                points[points.length] = ['pencil', [t.prevX, t.prevY, x, y], pencilDrawHelper.getOptions(), 'end'];
+
+                t.prevX = x;
+                t.prevY = y;
+            }
+
             this.ismousedown = false;
         },
         mousemove: function(e) {
@@ -1633,9 +1716,9 @@
 
             if (t.ismousedown) {
                 tempContext.lineCap = 'round';
-                pencilDrawHelper.line(tempContext, [t.prevX, t.prevY, x, y]);
+                pencilDrawHelper.pencil(tempContext, [t.prevX, t.prevY, x, y]);
 
-                points[points.length] = ['line', [t.prevX, t.prevY, x, y], pencilDrawHelper.getOptions()];
+                points[points.length] = ['pencil', [t.prevX, t.prevY, x, y], pencilDrawHelper.getOptions()];
 
                 t.prevX = x;
                 t.prevY = y;
@@ -3942,6 +4025,22 @@
         if (event.data.undo && points.length) {
             var index = event.data.index;
 
+            if (event.data.tool) {
+                var newArray = [];
+                var length = points.length;
+                var reverse = points.reverse();
+                for (var i = 0; i < length; i++) {
+                    var point = reverse[i];
+                    if (point[0] !== event.data.tool) {
+                        newArray.push(point);
+                    }
+                }
+                points = newArray.reverse();
+                drawHelper.redraw();
+                syncPoints(true);
+                return;
+            }
+
             if (index === 'all') {
                 points = [];
                 drawHelper.redraw();
@@ -3962,6 +4061,26 @@
             }
 
             if (index === -1) {
+                if (points.length && points[points.length - 1][0] === 'pencil') {
+                    var newArray = [];
+                    var length = points.length;
+                    var reverse = points.reverse();
+                    var ended;
+                    for (var i = 0; i < length; i++) {
+                        var point = reverse[i];
+                        if (point[3] == 'start') {
+                            ended = true;
+                        } else if (ended) {
+                            newArray.push(point);
+                        }
+                    }
+
+                    points = newArray.reverse();
+                    drawHelper.redraw();
+                    syncPoints(true);
+                    return;
+                }
+
                 points.length = points.length - 1;
                 drawHelper.redraw();
                 syncPoints(true);

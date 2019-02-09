@@ -49,22 +49,22 @@ navigator.mediaDevices.getUserMedia({
 
 ## Browsers Support
 
-| Browser        | Operating System                    | Features     |
-| -------------  |-------------                        |------------  |
-| Google Chrome  | Windows + MacOSX + Ubuntu + Android | audo + video |
-| Firefox        | Windows + MacOSX + Ubuntu + Android | audo + video |
-| Opera          | Windows + MacOSX + Ubuntu + Android | audo + video |
-| Edge           | Windows 10                          | only audio   |
-| Safari         | MacOSX + iOS (iphone/ipad)          | audo + video |
+| Browser        | Operating System                    | Features               |
+| -------------  |-------------                        |---------------------   |
+| Google Chrome  | Windows + MacOSX + Ubuntu + Android | audio + video + screen |
+| Firefox        | Windows + MacOSX + Ubuntu + Android | audio + video + screen |
+| Opera          | Windows + MacOSX + Ubuntu + Android | audio + video + screen |
+| Edge           | Windows 10                          | only audio             |
+| Safari         | MacOSX + iOS (iphone/ipad)          | audio + video          |
 
 ## Codecs Support
 
 | Browser       | Video               | Audio            |
 | ------------- |-------------        |-------------     |
 | Chrome        | VP8, VP9, H264, MKV | OPUS/VORBIS, PCM |
+| Opera         | VP8, VP9, H264, MKV | OPUS/VORBIS, PCM |
 | Firefox       | VP8, H264           | OPUS/VORBIS, PCM |
 | Safari        | VP8                 | OPUS/VORBIS, PCM |
-| Opera         | VP8                 | OPUS/VORBIS, PCM |
 | Edge          | None                | PCM              |
 
 
@@ -74,8 +74,8 @@ navigator.mediaDevices.getUserMedia({
 <!-- CDN -->
 <script src="https://cdn.WebRTC-Experiment.com/RecordRTC.js"></script>
 
-<!-- use 5.5.2 or any other version on cdnjs -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/RecordRTC/5.5.2/RecordRTC.js"></script>
+<!-- use 5.5.3 or any other version on cdnjs -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/RecordRTC/5.5.3/RecordRTC.js"></script>
 
 <!-- NPM i.e. "npm install recordrtc" -->
 <script src="node_modules/recordrtc/RecordRTC.js"></script>
@@ -91,14 +91,16 @@ let recorder = RecordRTC(stream, {
      // audio, video, canvas, gif
     type: 'video',
 
+    // audio/webm
     // video/webm;codecs=vp9
     // video/webm;codecs=vp8
     // video/webm;codecs=h264
     // video/x-matroska;codecs=avc1
     // video/mpeg -- NOT supported by any browser, yet
+    // video/mp4  -- NOT supported by any browser, yet
     // audio/wav
-    // audio/webm
-    // audio/ogg
+    // audio/ogg  -- ONLY Firefox
+    // demo: simple-demos/isTypeSupported.html
     mimeType: 'video/webm',
 
     // MediaStreamRecorder, StereoAudioRecorder, WebAssemblyRecorder
@@ -184,7 +186,7 @@ let recorder = RecordRTC(MediaStream || HTMLCanvasElement || HTMLVideoElement ||
 
 ## API
 
-```javscript
+```javascript
 RecordRTC.prototype = {
     // start the recording
     startRecording: function() {},
@@ -304,7 +306,7 @@ DiskStorage = {
 
 * [https://github.com/muaz-khan/RecordRTC/releases](https://github.com/muaz-khan/RecordRTC/releases)
 
-## Unti Tests
+## Unit Tests
 
 * [https://travis-ci.org/muaz-khan/RecordRTC](https://travis-ci.org/muaz-khan/RecordRTC)
 
@@ -339,6 +341,12 @@ DiskStorage = {
 | Rect.js       | [github](https://github.com/szwang/recordrtc-react) | [article](http://suzannewang.com/recordrtc/) |
 | Video.js      | [github](https://github.com/collab-project/videojs-record) | None |
 | Meteor        | [github](https://github.com/launchbricklabs/recordrtc-meteor-demo) | None |
+
+## Disclaimer
+
+There is no warranty, expressed or implied, associated with this product. Use at your own risk.
+
+* [https://www.webrtc-experiment.com/disclaimer/](https://www.webrtc-experiment.com/disclaimer/)
 
 ## License
 

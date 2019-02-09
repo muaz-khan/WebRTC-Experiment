@@ -701,7 +701,7 @@ function RecordRTC(mediaStream, config) {
          * @example
          * // this looper function will keep you updated about the recorder's states.
          * (function looper() {
-         *     document.querySelector('h1').innerHTML = 'Recorder's state is: ' + recorder.state;
+         *     document.querySelector('h1').innerHTML = 'Recorder\'s state is: ' + recorder.state;
          *     if(recorder.state === 'stopped') return; // ignore+stop
          *     setTimeout(looper, 1000); // update after every 3-seconds
          * })();

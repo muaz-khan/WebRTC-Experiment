@@ -16,7 +16,7 @@
  * });
  * @see {@link https://github.com/muaz-khan/RecordRTC|RecordRTC Source Code}
  * @param {MediaStream} mediaStream - MediaStream object fetched using getUserMedia API or generated using captureStreamUntilEnded or WebAudio API.
- * @param {object} config - {webAssemblyPath:'webm-wasm.wasm',workerPath: 'webm-worker.js', frameRate: 30, width: 1920, height: 1080}
+ * @param {object} config - {webAssemblyPath:'webm-wasm.wasm',workerPath: 'webm-worker.js', frameRate: 30, width: 1920, height: 1080, bitrate: 1024}
  */
 function WebAssemblyRecorder(stream, config) {
     // based on: github.com/GoogleChromeLabs/webm-wasm
@@ -131,6 +131,10 @@ function WebAssemblyRecorder(stream, config) {
         isPaused = false;
         this.blob = null;
         startRecording(stream);
+
+        if (typeof config.initCallback === 'function') {
+            config.initCallback();
+        }
     };
 
     var isPaused;
@@ -187,6 +191,27 @@ function WebAssemblyRecorder(stream, config) {
         });
 
         callback(this.blob);
+    };
+
+    // for debugging
+    this.name = 'WebAssemblyRecorder';
+    this.toString = function() {
+        return this.name;
+    };
+
+    /**
+     * This method resets currently recorded data.
+     * @method
+     * @memberof WebAssemblyRecorder
+     * @example
+     * recorder.clearRecordedData();
+     */
+    this.clearRecordedData = function() {
+        arrayOfBuffers = [];
+        isPaused = false;
+        this.blob = null;
+
+        // todo: if recording-ON then STOP it first
     };
 
     /**

@@ -80,7 +80,7 @@
             </header>
 
             <blockquote>
-                If you are using Chrome then <a href="https://chrome.google.com/webstore/detail/screen-capturing/ajhifddimkapgcifgcodmmfdlknahffk" target="_blank">this chrome-extension</a> is required.
+                If you are using Chrome version &lt;= 71 then <a href="https://chrome.google.com/webstore/detail/screen-capturing/ajhifddimkapgcifgcodmmfdlknahffk" target="_blank">this chrome-extension</a> is required.
             </blockquote>
 
             <div style="text-align: center;">
@@ -271,26 +271,45 @@
                         return;
                     }
 
-                    getScreenId(function (error, sourceId, screen_constraints) {
-                        if(error) {
-                            console.error(error);
-                            offererPeer(video_stream);
-                            return;
-                        }
+                    getScreenStream(function(screen_stream) {
+                        updateFakeVideo(screen_stream);
+                        offererPeer(video_stream, screen_stream);
 
-                        navigator.mediaDevices.getUserMedia(screen_constraints).then(function (screen_stream) {
-                            updateFakeVideo(screen_stream);
-                            offererPeer(video_stream, screen_stream);
-
-                            addStreamStopListener(screen_stream, function() {
-                                onScreenEnded(video_stream, screen_stream);
-                            });
-                        }).catch(function (error) {
-                            console.error(error);
-                            offererPeer(video_stream);
+                        addStreamStopListener(screen_stream, function() {
+                            onScreenEnded(video_stream, screen_stream);
                         });
+                    }, function(error) {
+                        console.error(error);
+                        offererPeer(video_stream);
                     });
                 });
+
+                function getScreenStream(callback, errorCB) {
+                    if (navigator.getDisplayMedia) {
+                        navigator.getDisplayMedia({
+                            video: true
+                        }).then(screenStream => {
+                            callback(screenStream);
+                        }, errorCB).catch(errorCB);
+                    } else if (navigator.mediaDevices.getDisplayMedia) {
+                        navigator.mediaDevices.getDisplayMedia({
+                            video: true
+                        }).then(screenStream => {
+                            callback(screenStream);
+                        }, errorCB).catch(errorCB);
+                    } else {
+                        getScreenId(function(error, sourceId, screen_constraints) {
+                            if(error) {
+                                errorCB(error);
+                                return;
+                            }
+
+                            navigator.mediaDevices.getUserMedia(screen_constraints).then(function(screenStream) {
+                                callback(screenStream);
+                            }, errorCB).catch(errorCB);
+                        });
+                    }
+                }
             </script>
 			
             <br /><br />

@@ -179,6 +179,7 @@ Github (open-sourced): https://github.com/muaz-khan/getScreenId
 * Screen Sharing using `screen.js`: https://www.webrtc-experiment.com/screen-sharing/
 * Latest Screen Sharing Demo: https://www.webrtc-experiment.com/RTCMultiConnection/screen-sharing.html
 * Scalable Screen Sharing Demo: https://rtcmulticonnection.herokuapp.com/demos/Scalable-Screen-Broadcast.html
+* getDisplayMedia: https://www.webrtc-experiment.com/getDisplayMedia/
 
 # WebRTC Part of Screen Sharing
 
@@ -495,54 +496,16 @@ Github (open-sourced): https://github.com/muaz-khan/SdpSerializer
 
 and Cordova/ionic/phonegap/electron/node-webkit/etc apps.
 
-# RTCMultiConnection Wiki Pages
+# Disclaimer
 
-* [Select Camera and Microphone Devices](https://github.com/muaz-khan/RTCMultiConnection/wiki/Select-Camera-and-Microphone-Devices)
-* [Fix Duplicate Videos Issues](https://github.com/muaz-khan/RTCMultiConnection/wiki/Fix-Duplicate-Videos-Issues)
-* [List of Breaking Changes](https://github.com/muaz-khan/RTCMultiConnection/wiki/Breaking-Changes)
-* [Coding Tricks](https://github.com/muaz-khan/RTCMultiConnection/wiki/Coding-Tricks)
-* [Switch Between Cameras](https://github.com/muaz-khan/RTCMultiConnection/wiki/Switch-between-cameras)
-* [Bandwidth Management](https://github.com/muaz-khan/RTCMultiConnection/wiki/Bandwidth-Management)
-* [Channels and Sessions Management](https://github.com/muaz-khan/RTCMultiConnection/wiki/Channels-and-Sessions)
-* [How to send Custom/Private messages?](https://github.com/muaz-khan/RTCMultiConnection/wiki/Custom-Messages)
-* [Custom Private Servers](https://github.com/muaz-khan/RTCMultiConnection/wiki/Custom-Private-Servers)
-* [How to link RTCMultiConnection.js?](https://github.com/muaz-khan/RTCMultiConnection/wiki/How-to-link-RTCMultiConnection.js%3F)
-* [How to fix echo?](https://github.com/muaz-khan/RTCMultiConnection/wiki/How-to-fix-echo%3F)
-* [How to share Part-of-Screen?](https://github.com/muaz-khan/RTCMultiConnection/wiki/Part-of-Screen-Sharing)
-* [How to detect Presence of the users & sessions?](https://github.com/muaz-khan/RTCMultiConnection/wiki/Presence-Detection)
-* [How to share screen?](https://github.com/muaz-khan/RTCMultiConnection/wiki/Screen-Sharing)
-* [How to secure your RTCMultiConnection codes?](https://github.com/muaz-khan/RTCMultiConnection/wiki/Security)
-* [Use WebSync Signaling Server in any RTCMultiConnection demo](https://github.com/muaz-khan/RTCMultiConnection/wiki/WebSync-Signaling-Server)
-* [How to implement client-side (local) screen-sharing without involving any 3rd-party service or extension or addon](https://github.com/muaz-khan/RTCMultiConnection/wiki/Screen-Sharing-on-your-Local-Server)
-* [Detect Who is Speaking](https://github.com/muaz-khan/RTCMultiConnection/wiki/Detect-Who-is-Speaking)
-* [RTCMultiConnection StreamID](https://github.com/muaz-khan/RTCMultiConnection/wiki/RTCMultiConnection-StreamID)
-* [checkPresence and automatically join rejoin rooms](https://github.com/muaz-khan/RTCMultiConnection/wiki/checkPresence-and-automatically-join-rejoin-rooms)
-* [WebRTC Data Channels Latency Detection](https://github.com/muaz-khan/RTCMultiConnection/wiki/WebRTC-Data-Channels-Latency-Detection)
-* [How to remove video on user left](https://github.com/muaz-khan/RTCMultiConnection/wiki/How-to-remove-video-on-user-left)
+There is no warranty, expressed or implied, associated with this product. Use at your own risk.
 
-# RecordRTC Wiki Pages
-
-1. [PHP Upload Issues](https://github.com/muaz-khan/RecordRTC/wiki/PHP-Upload-Issues)
-2. [Get Synced WAV WebM](https://github.com/muaz-khan/RecordRTC/wiki/Get-Synced-WAV-WebM)
-3. [Ffmpeg](https://github.com/muaz-khan/RecordRTC/wiki/Ffmpeg)
-4. [Upload to YouTube](https://github.com/muaz-khan/RecordRTC/wiki/Upload-to-YouTube)
-5. [Upload to Server](https://github.com/muaz-khan/RecordRTC/wiki/Upload-To-Server)
-6. [RecordRTC on AngularJs](https://github.com/muaz-khan/RecordRTC/wiki/RecordRTC-on-AngularJs)
-7. [Record Multiple Streams Into Single File](https://github.com/muaz-khan/RecordRTC/wiki/Record-Multiple-Streams-Into-Single-File)
-
-# Other Wiki Pages
-
-* [WebRTC DataChannel and Firefox](https://github.com/muaz-khan/WebRTC-Experiment/wiki/WebRTC-DataChannel-and-Firefox)
-* [Broadcasting Demos](https://github.com/muaz-khan/WebRTC-Experiment/wiki/Broadcasting-Demos)
-* [mozAV2AudioOnly](https://github.com/muaz-khan/WebRTC-Experiment/wiki/mozAV2AudioOnly)
-* [RTCDataConnection](https://github.com/muaz-khan/WebRTC-Experiment/wiki/RTCDataConnection)
-* [RTCMultiConnection v1.0](https://github.com/muaz-khan/WebRTC-Experiment/wiki/RTCMultiConnection)
-* [RTCPeerConnection Documentation](https://github.com/muaz-khan/WebRTC-Experiment/wiki/RTCPeerConnection-Documentation)
+* https://www.webrtc-experiment.com/disclaimer/
 
 # Credits
 
-* Muaz Khan - https://github.com/muaz-khan
+* Muaz Khan - https://MuazKhan.com
 
 # License
 
-All [WebRTC Experiments](https://github.com/muaz-khan/WebRTC-Experiment) are released under [MIT licence](https://www.webrtc-experiment.com/licence/) . Copyright (c) [Muaz Khan](http://www.muazkhan.com/).
+All [WebRTC Experiments](https://github.com/muaz-khan/WebRTC-Experiment) are released under [MIT license](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/LICENSE) . Copyright (c) [Muaz Khan](https://muazkhan.com/).

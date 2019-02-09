@@ -131,6 +131,11 @@ function captureDesktop() {
             resolutions.maxHeight = 720;
         }
 
+        if (_resolutions === '480p') {
+            resolutions.maxWidth = 853;
+            resolutions.maxHeight = 480;
+        }
+
         if (_resolutions === '360p') {
             resolutions.maxWidth = 640;
             resolutions.maxHeight = 360;
