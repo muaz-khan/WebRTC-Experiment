@@ -111,7 +111,7 @@ function PeerInitiator(config) {
                 params.rtcpMuxPolicy = connection.rtcpMuxPolicy;
             }
 
-            if (DetectRTC.browser.name === 'Chrome') {
+            if (!!connection.sdpSemantics) {
                 params.sdpSemantics = connection.sdpSemantics || 'unified-plan';
             }
 

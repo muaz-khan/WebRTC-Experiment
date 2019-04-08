@@ -1,18 +1,16 @@
+# DO NOT USE THIS
+
+# PLEASE USE HTTPS
+
+# NOT RECOMMENDED
+
+# YOUR CHOICE; at YOUR own RISK
+
+----
+
 # Call getUserMedia on any HTTP website
 
 This chrome extension allows you invoke getUserMedia on any HTTP domain. You can invoke getUserMedia for camera+microphone or screen or tabs.
-
-# If disabled by chrome? Then please install using `chrome://extensions`
-
-<a target="_blank" href="https://chrome.google.com/webstore/detail/getusermedia/nbnpcmljmiinldficickhdoaiblgkggc">![Try it now in CWS](https://raw.github.com/GoogleChrome/chrome-app-samples/master/tryitnowbutton.png "Click here to install this extension from the Chrome Web Store")</a>
-
-* https://chrome.google.com/webstore/detail/getusermedia/nbnpcmljmiinldficickhdoaiblgkggc
-
-<a target="_blank" href="https://chrome.google.com/webstore/detail/getusermedia/nbnpcmljmiinldficickhdoaiblgkggc"><img alt="Install getUserMedia Extension" src="https://webrtcweb.com/getUserMedia-Extension.png" title="Click here to install this sample from the Chrome Web Store" /></a>
-
-### Try Following Demo After Installation
-
-* http://www.webrtc-experiment.com/getUserMedia-on-http/
 
 Source code is available in the `./example/` directory.
 
@@ -129,7 +127,7 @@ var constraints = {
 
 ## Disclaimer
 
-There is no warranty, expressed or implied, associated with this product. Use at your own risk.
+No more maintaining this extension; as of 2019. So please use at your own risk.
 
 * https://www.webrtc-experiment.com/disclaimer/
 

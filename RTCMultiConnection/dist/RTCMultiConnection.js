@@ -1,6 +1,6 @@
 'use strict';
 
-// Last time updated: 2019-02-06 12:47:47 PM UTC
+// Last time updated: 2019-04-08 6:55:45 AM UTC
 
 // _________________________
 // RTCMultiConnection v3.6.8
@@ -2547,7 +2547,7 @@ var RTCMultiConnection = function(roomid, forceOptions) {
                     params.rtcpMuxPolicy = connection.rtcpMuxPolicy;
                 }
 
-                if (DetectRTC.browser.name === 'Chrome') {
+                if (!!connection.sdpSemantics) {
                     params.sdpSemantics = connection.sdpSemantics || 'unified-plan';
                 }
 
@@ -3413,30 +3413,13 @@ var RTCMultiConnection = function(roomid, forceOptions) {
             // resiprocate: 3344+4433
             // pions: 7575
             var iceServers = [{
-                    'urls': [
-                        'stun:webrtcweb.com:7788'
-                    ],
-                    'username': 'muazkh',
-                    'credential': 'muazkh'
-                },
-                {
-                    'urls': [
-                        'turn:webrtcweb.com:7788', // coTURN 7788+8877
-                        'turn:webrtcweb.com:8877',
-                        'turn:webrtcweb.com:4455', // restund udp
-                    ],
-                    'username': 'muazkh',
-                    'credential': 'muazkh'
-                },
-                {
-                    'urls': [
-                        'stun:stun.l.google.com:19302',
-                        'stun:stun1.l.google.com:19302',
-                        'stun:stun2.l.google.com:19302',
-                        'stun:stun.l.google.com:19302?transport=udp',
-                    ]
-                }
-            ];
+                'urls': [
+                    'stun:stun.l.google.com:19302',
+                    'stun:stun1.l.google.com:19302',
+                    'stun:stun2.l.google.com:19302',
+                    'stun:stun.l.google.com:19302?transport=udp',
+                ]
+            }];
 
             return iceServers;
         }

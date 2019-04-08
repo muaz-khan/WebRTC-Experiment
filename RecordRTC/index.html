@@ -1,5 +1,3 @@
-<script>window.demoVersion = '2019.01.20';</script>
-
 <!--
 > Muaz Khan     - www.MuazKhan.com
 > MIT License   - www.WebRTC-Experiment.com/licence
@@ -14,8 +12,6 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <link rel="author" type="text/html" href="https://plus.google.com/+MuazKhan">
-    <meta name="author" content="Muaz Khan">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
 
     <link rel="stylesheet" href="https://cdn.webrtc-experiment.com/style.css">
@@ -115,12 +111,7 @@
             </p>
         </header>
 
-        <section style="margin: 20px; text-align: center; color: red;">
-            <small id="demoVersion"></small>
-            <script>var date=new Date(window.demoVersion),month=date.toLocaleString("en-us",{month:"long"}),day=date.getUTCDate();day.toString().length<=9&&(day=day.toString().length == 1 ? "0"+day : day);var year=date.getUTCFullYear(); document.getElementById("demoVersion").innerHTML="Last Updated On: <time>"+month+" "+day+" "+year+"</time>";</script>
-        </section>
-
-        <div class="github-stargazers"></div>
+        <div class="github-stargazers" style="margin-top: 25px;"></div>
 
         <section class="experiment recordrtc">
             <h2 class="header" style="margin: 0;">
@@ -278,6 +269,9 @@
 
             var div = document.createElement('section');
             mediaElement.media.parentNode.appendChild(div);
+            mediaElement.media.muted = false;
+            mediaElement.media.autoplay = true;
+            mediaElement.media.playsinline = true;
             div.appendChild(mediaElement.media);
             
             var recordingPlayer = mediaElement.media;
@@ -805,130 +799,6 @@
                 return document.domain === 'localhost' || document.domain === '127.0.0.1';
             }
 
-            function captureScreen(config) {
-                // Firefox screen capturing addon is open-sourced here: https://github.com/muaz-khan/Firefox-Extensions
-                // Google Chrome screen capturing extension is open-sourced here: https://github.com/muaz-khan/Chrome-Extensions/tree/master/desktopCapture
-
-                window.getScreenId = function(chromeMediaSource, chromeMediaSourceId) {
-                    var screenConstraints = {
-                        audio: false,
-                        video: {
-                            mandatory: {
-                                chromeMediaSourceId: chromeMediaSourceId,
-                                chromeMediaSource: isLocalHost() ? 'screen' : chromeMediaSource
-                            }
-                        }
-                    };
-
-                    if(DetectRTC.browser.name === 'Firefox') {
-                        screenConstraints = {
-                            video: {
-                                mediaSource: 'window'
-                            }
-                        }
-                    }
-
-                    captureUserMedia(screenConstraints, function(screenStream) {
-                        config.onMediaCaptured(screenStream);
-
-                        addStreamStopListener(screenStream, function() {
-                            // config.onMediaStopped();
-
-                            btnStartRecording.onclick();
-                        });
-                    }, function(error) {
-                        config.onMediaCapturingFailed(error);
-
-                        if(isMyOwnDomain() === false && DetectRTC.browser.name === 'Chrome') {
-                            // otherwise deploy chrome extension yourselves
-                            // https://github.com/muaz-khan/Chrome-Extensions/tree/master/desktopCapture
-                            alert('Please enable this command line flag: "--enable-usermedia-screen-capturing"');
-                        }
-
-                        if(isMyOwnDomain() === false && DetectRTC.browser.name === 'Firefox') {
-                            // otherwise deploy firefox addon yourself
-                            // https://github.com/muaz-khan/Firefox-Extensions
-                            alert('Please enable screen capturing for your domain. Open "about:config" and search for "media.getusermedia.screensharing.allowed_domains"');
-                        }
-                    });
-                };
-
-                if(DetectRTC.browser.name === 'Firefox' || isLocalHost()) {
-                    window.getScreenId();
-                }
-
-                window.postMessage('get-sourceId', '*');
-            }
-
-            function captureAudioPlusScreen(config) {
-                // Firefox screen capturing addon is open-sourced here: https://github.com/muaz-khan/Firefox-Extensions
-                // Google Chrome screen capturing extension is open-sourced here: https://github.com/muaz-khan/Chrome-Extensions/tree/master/desktopCapture
-
-                window.getScreenId = function(chromeMediaSource, chromeMediaSourceId) {
-                    var screenConstraints = {
-                        audio: false,
-                        video: {
-                            mandatory: {
-                                chromeMediaSourceId: chromeMediaSourceId,
-                                chromeMediaSource: isLocalHost() ? 'screen' : chromeMediaSource
-                            }
-                        }
-                    };
-
-                    if(DetectRTC.browser.name === 'Firefox') {
-                        screenConstraints = {
-                            video: {
-                                mediaSource: 'window'
-                            },
-                            audio: false
-                        }
-                    }
-
-                    captureUserMedia(screenConstraints, function(screenStream) {
-                        captureUserMedia({audio: true}, function(audioStream) {
-                            var newStream = new MediaStream();
-
-                            // merge audio and video tracks in a single stream
-                            getTracks(audioStream, 'audio').forEach(function(track) {
-                                newStream.addTrack(track);
-                            });
-
-                            getTracks(screenStream, 'video').forEach(function(track) {
-                                newStream.addTrack(track);
-                            });
-
-                            config.onMediaCaptured(newStream);
-
-                            addStreamStopListener(newStream, function() {
-                                config.onMediaStopped();
-                            });
-                        }, function(error) {
-                            config.onMediaCapturingFailed(error);
-                        });
-                    }, function(error) {
-                        config.onMediaCapturingFailed(error);
-
-                        if(isMyOwnDomain() === false && DetectRTC.browser.name === 'Chrome') {
-                            // otherwise deploy chrome extension yourselves
-                            // https://github.com/muaz-khan/Chrome-Extensions/tree/master/desktopCapture
-                            alert('Please enable this command line flag: "--enable-usermedia-screen-capturing"');
-                        }
-
-                        if(isMyOwnDomain() === false && DetectRTC.browser.name === 'Firefox') {
-                            // otherwise deploy firefox addon yourself
-                            // https://github.com/muaz-khan/Firefox-Extensions
-                            alert('Please enable screen capturing for your domain. Open "about:config" and search for "media.getusermedia.screensharing.allowed_domains"');
-                        }
-                    });
-                };
-
-                if(DetectRTC.browser.name === 'Firefox' || isLocalHost()) {
-                    window.getScreenId();
-                }
-
-                window.postMessage('get-sourceId', '*');
-            }
-
             var videoBitsPerSecond;
 
             function setVideoBitrates() {
@@ -1323,8 +1193,20 @@
                 };
 
                 // upload to PHP server
-                document.querySelector('#upload-to-php').disabled = false;
+                if(isMyOwnDomain()) {
+                    document.querySelector('#upload-to-php').disabled = true;
+                    document.querySelector('#upload-to-php').style.display = 'none';
+                }
+                else {
+                    document.querySelector('#upload-to-php').disabled = false;
+                }
+                
                 document.querySelector('#upload-to-php').onclick = function() {
+                    if(isMyOwnDomain()) {
+                        alert('PHP Upload is not available on this domain.');
+                        return;
+                    }
+
                     if(!recordRTC) return alert('No recording found.');
                     this.disabled = true;
 
@@ -1419,11 +1301,11 @@
 
                 callback('Uploading recorded-file to server.');
 
-                var upload_url = 'https://webrtcweb.com/f/';
-                // var upload_url = 'RecordRTC-to-PHP/save.php';
+                // var upload_url = 'https://your-domain.com/files-uploader/';
+                var upload_url = 'RecordRTC-to-PHP/save.php';
 
-                var upload_directory = upload_url;
-                // var upload_directory = 'RecordRTC-to-PHP/uploads/';
+                // var upload_directory = upload_url;
+                var upload_directory = 'RecordRTC-to-PHP/uploads/';
 
                 makeXMLHttpRequest(upload_url, formData, function(progress) {
                     if (progress !== 'upload-ended') {
@@ -1596,6 +1478,96 @@
                 });
 
                 parentNode.appendChild(recordingPlayer);
+            }
+        </script>
+
+        <script>
+            function captureScreen(config) {
+                if (navigator.getDisplayMedia) {
+                    navigator.getDisplayMedia({
+                        video: true
+                    }).then(screenStream => {
+                        config.onMediaCaptured(screenStream);
+
+                        addStreamStopListener(screenStream, function() {
+                            // config.onMediaStopped();
+
+                            btnStartRecording.onclick();
+                        });
+
+                        setVideoURL(screenStream, true);
+                    }).catch(function(error) {
+                        config.onMediaCapturingFailed(error);
+                    });
+                } else if (navigator.mediaDevices.getDisplayMedia) {
+                    navigator.mediaDevices.getDisplayMedia({
+                        video: true
+                    }).then(screenStream => {
+                        config.onMediaCaptured(screenStream);
+
+                        addStreamStopListener(screenStream, function() {
+                            // config.onMediaStopped();
+
+                            btnStartRecording.onclick();
+                        });
+
+                        setVideoURL(screenStream, true);
+                    }).catch(function(error) {
+                        config.onMediaCapturingFailed(error);
+                    });
+                } else {
+                    var error = 'getDisplayMedia API are not supported in this browser.';
+                    config.onMediaCapturingFailed(error);
+                    alert(error);
+                }
+            }
+
+            function captureAudioPlusScreen(config) {
+                if (navigator.getDisplayMedia) {
+                    navigator.getDisplayMedia({
+                        video: true
+                    }).then(screenStream => {
+                        navigator.mediaDevices.getUserMedia({audio:true}).then(function(mic) {
+                            screenStream.addTrack(mic.getTracks()[0]);
+
+                            config.onMediaCaptured(screenStream);
+
+                            addStreamStopListener(screenStream, function() {
+                                // config.onMediaStopped();
+
+                                btnStartRecording.onclick();
+                            });
+
+                            setVideoURL(screenStream, true);
+                        });
+                    }).catch(function(error) {
+                        config.onMediaCapturingFailed(error);
+                    });
+                } else if (navigator.mediaDevices.getDisplayMedia) {
+                    navigator.mediaDevices.getDisplayMedia({
+                        video: true
+                    }).then(screenStream => {
+                        navigator.mediaDevices.getUserMedia({audio:true}).then(function(mic) {
+                            screenStream.addTrack(mic.getTracks()[0]);
+
+                            config.onMediaCaptured(screenStream);
+
+                            addStreamStopListener(screenStream, function() {
+                                // config.onMediaStopped();
+
+                                btnStartRecording.onclick();
+                            });
+
+                            setVideoURL(screenStream, true);
+                        });
+                    }).catch(function(error) {
+                        config.onMediaCapturingFailed(error);
+                    });
+                } else {
+                    var error = 'getDisplayMedia API are not supported in this browser.';
+                    config.onMediaCapturingFailed(error);
+                    alert(error);
+                }
             }
         </script>
 
@@ -2027,18 +1999,6 @@
     </script>
     <script src="https://cdn.webrtc-experiment.com/commits.js" async></script>
     <script src="https://apis.google.com/js/client:plusone.js"></script>
-
-    <!-- <script src="https://cdn.webrtc-experiment.com/getScreenId.js"></script> -->
-    <script>
-        var chromeMediaSource = 'screen';
-        window.addEventListener('message', function(message) {
-            if(message.origin.toString().indexOf(MY_DOMAIN) === -1) return;
-            chromeMediaSource = 'desktop';
-            if(typeof getScreenId == 'function' && !!message.data.sourceId) {
-                getScreenId(chromeMediaSource, message.data.sourceId);
-            }
-        });
-    </script>
 </body>
 
 </html>

@@ -1,3 +1,11 @@
+# Disclaimer
+
+No more maintaining this extension; as of 2019. So please use at your own risk.
+
+* https://www.webrtc-experiment.com/disclaimer/
+
+----
+
 ## Chrome tabCapture extension
 
 This chrome extension not only captures content of the selected tab, but also provides multi-user peer-to-peer tab-streaming.
@@ -7,10 +15,6 @@ This chrome extension not only captures content of the selected tab, but also pr
 ```
 index.html
 ```
-
-## How to install?
-
-* https://chrome.google.com/webstore/detail/tab-capturing-sharing/pcnepejfgcmidedoimegcafiabjnodhk
 
 ## How to capture stream using tabCapture APIs?
 
@@ -43,12 +47,6 @@ To learn more about how to publish a chrome extension in Google App Store:
 ## For more information
 
 For additional information, click [this link](https://github.com/muaz-khan/WebRTC-Experiment/blob/7cd04a81b30cdca2db159eb746e2714307640767/Chrome-Extensions/desktopCapture/README.md).
-
-## Disclaimer
-
-There is no warranty, expressed or implied, associated with this product. Use at your own risk.
-
-* https://www.webrtc-experiment.com/disclaimer/
 
 ## License
 

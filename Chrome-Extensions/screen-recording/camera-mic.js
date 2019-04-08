@@ -24,7 +24,7 @@ navigator.mediaDevices.getUserMedia({
 }).catch(function(e) {
     var html = '<h1 style="font-family: Courier New; font-size: 30px; color:red;margin-top:20px;">Unable to access your camera and/or microphone.</h1>';
     html += '<p style="font-family: Courier New; font-size: 25px; color:black;margin-top:20px;">Please go to following pages and remove "RecordRTC" from blocked-list:</p>';
-    html += '<pre style="font-family: Courier New; font-size: 25px; color:blue;margin-top:20px;">chrome://settings/content/microphone?search=camera</pre>';
+    html += '<pre style="font-family: Courier New; font-size: 25px; color:blue;margin-top:20px;">chrome://settings/content/camera?search=camera</pre>';
     html += '<pre style="font-family: Courier New; font-size: 25px; color:blue;margin-top:20px;">chrome://settings/content/microphone?search=microphone</pre>';
     
     if(e.message && e.message.toString().length) {

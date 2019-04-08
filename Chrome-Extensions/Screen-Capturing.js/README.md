@@ -1,3 +1,41 @@
+# Please use `getDisplayMedia` instead
+
+```javascript
+getScreenStream(function(screenStream) {
+    video.srcObject = screenStream;
+});
+
+function getScreenStream(callback) {
+    if (navigator.getDisplayMedia) {
+        navigator.getDisplayMedia({
+            video: true
+        }).then(screenStream => {
+            callback(screenStream);
+        });
+    } else if (navigator.mediaDevices.getDisplayMedia) {
+        navigator.mediaDevices.getDisplayMedia({
+            video: true
+        }).then(screenStream => {
+            callback(screenStream);
+        });
+    } else {
+        getScreenId(function(error, sourceId, screen_constraints) {
+            navigator.mediaDevices.getUserMedia(screen_constraints).then(function(screenStream) {
+                callback(screenStream);
+            });
+        });
+    }
+}
+```
+
+## Disclaimer
+
+No more maintaining this extension; as of 2019. So please use at your own risk.
+
+* https://www.webrtc-experiment.com/disclaimer/
+
+----
+
 # Screen-Capturing.js / for [desktopCapture extension](https://github.com/muaz-khan/Chrome-Extensions/tree/master/desktopCapture)
 
 * Demo: https://www.webrtc-experiment.com/Screen-Capturing/
@@ -245,12 +283,6 @@ getScreenId(function (error, sourceId, screen_constraints) {
 });
 </script>
 ```
-
-## Disclaimer
-
-There is no warranty, expressed or implied, associated with this product. Use at your own risk.
-
-* https://www.webrtc-experiment.com/disclaimer/
 
 ## License
 

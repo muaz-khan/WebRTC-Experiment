@@ -1,4 +1,4 @@
-var server_url = 'https://webrtcweb.com/f/';
+var server_url = 'https://your-domain.com/f/';
 
 document.querySelector('#btn-php-upload').onclick = function() {
     if (!file) {

@@ -12,8 +12,6 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <link rel="author" type="text/html" href="https://plus.google.com/+MuazKhan">
-    <meta name="author" content="Muaz Khan">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
 
     <link rel="stylesheet" href="https://cdn.webrtc-experiment.com/style.css">
@@ -107,10 +105,7 @@
         <div class="github-stargazers"></div>
 
         <blockquote class="inline">
-            This demo allows you record and upload to PHP server. Files on PHP server are auto-deleted as soon as you leave this page.
-
-            <br><br>
-            This demo is open-sourced here: <a href="https://github.com/muaz-khan/RecordRTC/tree/master/RecordRTC-to-PHP">github/RecordRTC-to-PHP</a>
+            Please try this demo on localhost or on your own PHP website: <a href="https://github.com/muaz-khan/RecordRTC/tree/master/RecordRTC-to-PHP">SOURCE CODE OF THIS DEMO</a>
         </blockquote>
 
         <section class="experiment recordrtc">
@@ -141,7 +136,7 @@
 
             <br>
 
-            <video controls muted playsinline></video>
+            <video controls playsinline autoplay muted=false volume=1></video>
         </section>
 
         <script>
@@ -646,6 +641,13 @@
                 console.info('This RecordRTC demo merely tries to playback recorded audio/video sync inside the browser. It still generates two separate files (WAV/WebM).');
             }
 
+            var MY_DOMAIN = 'webrtc-experiment.com';
+
+            function isMyOwnDomain() {
+                // replace "webrtc-experiment.com" with your own domain name
+                return document.domain.indexOf(MY_DOMAIN) !== -1;
+            }
+
             function saveToDiskOrOpenNewTab(recordRTC) {
                 recordingDIV.querySelector('#save-to-disk').parentNode.style.display = 'block';
                 recordingDIV.querySelector('#save-to-disk').onclick = function() {
@@ -660,8 +662,20 @@
                     window.open(recordRTC.toURL());
                 };
 
-                recordingDIV.querySelector('#upload-to-server').disabled = false;
+                if(isMyOwnDomain()) {
+                    recordingDIV.querySelector('#upload-to-server').disabled = true;
+                    recordingDIV.querySelector('#upload-to-server').style.display = 'none';
+                }
+                else {
+                    recordingDIV.querySelector('#upload-to-server').disabled = false;
+                }
+                
                 recordingDIV.querySelector('#upload-to-server').onclick = function() {
+                    if(isMyOwnDomain()) {
+                        alert('PHP Upload is not available on this domain.');
+                        return;
+                    }
+
                     if(!recordRTC) return alert('No recording found.');
                     this.disabled = true;
 
@@ -700,11 +714,11 @@
 
                 callback('Uploading ' + fileType + ' recording to server.');
 
-                var upload_url = 'https://webrtcweb.com/f/';
-                // var upload_url = 'RecordRTC-to-PHP/save.php';
+                // var upload_url = 'https://your-domain.com/files-uploader/';
+                var upload_url = 'save.php';
 
-                var upload_directory = upload_url;
-                // var upload_directory = 'RecordRTC-to-PHP/uploads/';
+                // var upload_directory = upload_url;
+                var upload_directory = 'uploads/';
 
                 makeXMLHttpRequest(upload_url, formData, function(progress) {
                     if (progress !== 'upload-ended') {
@@ -791,103 +805,6 @@
             };
         </script>
 
-        <section class="experiment">
-            <h2 class="header">
-                URL Parameters
-            </h2>
-            <pre>
-// AUDIO
-<a href="https://www.webrtc-experiment.com/RecordRTC/PHP/?bufferSize=16384&sampleRate=44100">?bufferSize=16384&sampleRate=44100</a>
-<a href="https://www.webrtc-experiment.com/RecordRTC/PHP/?leftChannel=false&disableLogs=false">?leftChannel=false&disableLogs=false</a>
-
-// VIDEO
-<a href="https://www.webrtc-experiment.com/RecordRTC/PHP/?canvas_width=1280&canvas_height=720">?canvas_width=1280&canvas_height=720</a>
-<a href="https://www.webrtc-experiment.com/RecordRTC/PHP/?frameInterval=10">?frameInterval=10</a>
-</pre>
-        </section>
-
-        <section class="experiment" id="other-demos">
-            <h2 class="header">
-                <a href="#other-demos">Other Demos</a>
-            </h2>
-            <table style="border-collapse: collapse; border-spacing: 0px; margin-top: 0px; margin-bottom: 16px; display: block; width: 728px; overflow: auto; word-break: normal; color: rgb(51, 51, 51); font-family: 'Helvetica Neue', Helvetica, 'Segoe UI', Arial, freesans, sans-serif; font-size: 16px; line-height: 25.6000003814697px;"><thead><tr style="border-top-width: 1px; border-top-style: solid; border-top-color: rgb(204, 204, 204);"><th style="padding: 6px 13px; border: 1px solid rgb(221, 221, 221);">Experiment Name</th><th style="padding: 6px 13px; border: 1px solid rgb(221, 221, 221);">Demo</th><th style="padding: 6px 13px; border: 1px solid rgb(221, 221, 221);">Source</th></tr></thead>
-            <tbody>
-                <tr style="border-top-width: 1px; border-top-style: solid; border-top-color: rgb(204, 204, 204); background-color: rgb(248, 248, 248);">
-                    <td style="padding: 6px 13px; border: 1px solid rgb(221, 221, 221);">WebPage+Canvas Recording</td>
-                    <td style="padding: 6px 13px; border: 1px solid rgb(221, 221, 221);"><a href="https://www.webrtc-experiment.com/RecordRTC/Canvas-Recording/webpage-recording.html" style="color: rgb(65, 131, 196); text-decoration: none; background: transparent;">Demo</a></td>
-                    <td style="padding: 6px 13px; border: 1px solid rgb(221, 221, 221);"><a href="https://github.com/muaz-khan/RecordRTC/blob/master/Canvas-Recording/webpage-recording.html" style="color: rgb(65, 131, 196); text-decoration: none; background: transparent;">Source</a></td>
-                </tr>
-
-                <tr style="border-top-width: 1px; border-top-style: solid; border-top-color: rgb(204, 204, 204); background-color: rgb(248, 248, 248);">
-                    <td style="padding: 6px 13px; border: 1px solid rgb(221, 221, 221);">HTML5 Canvas Dashboard + 2D Animation Recording</td>
-                    <td style="padding: 6px 13px; border: 1px solid rgb(221, 221, 221);"><a href="https://www.webrtc-experiment.com/RecordRTC/Canvas-Recording/record-canvas-drawings.html" style="color: rgb(65, 131, 196); text-decoration: none; background: transparent;">Demo</a></td>
-                    <td style="padding: 6px 13px; border: 1px solid rgb(221, 221, 221);"><a href="https://github.com/muaz-khan/RecordRTC/blob/master/Canvas-Recording/record-canvas-drawings.html" style="color: rgb(65, 131, 196); text-decoration: none; background: transparent;">Source</a></td>
-                </tr>
-
-                <tr style="border-top-width: 1px; border-top-style: solid; border-top-color: rgb(204, 204, 204); background-color: rgb(248, 248, 248);">
-                    <td style="padding: 6px 13px; border: 1px solid rgb(221, 221, 221);">HTML5 2D Animation Recording</td>
-                    <td style="padding: 6px 13px; border: 1px solid rgb(221, 221, 221);"><a href="https://www.webrtc-experiment.com/RecordRTC/Canvas-Recording/Canvas-Animation-Recording.html" style="color: rgb(65, 131, 196); text-decoration: none; background: transparent;">Demo</a></td>
-                    <td style="padding: 6px 13px; border: 1px solid rgb(221, 221, 221);"><a href="https://github.com/muaz-khan/RecordRTC/blob/master/Canvas-Recording/Canvas-Animation-Recording.html" style="color: rgb(65, 131, 196); text-decoration: none; background: transparent;">Source</a></td>
-                </tr>
-
-                <tr style="border-top-width: 1px; border-top-style: solid; border-top-color: rgb(204, 204, 204); background-color: rgb(248, 248, 248);">
-                    <td style="padding: 6px 13px; border: 1px solid rgb(221, 221, 221);">Record Videos and Upload to PHP server</td>
-                    <td style="padding: 6px 13px; border: 1px solid rgb(221, 221, 221);"><a href="https://www.webrtc-experiment.com/RecordRTC/PHP/" style="color: rgb(65, 131, 196); text-decoration: none; background: transparent;">Demo</a></td>
-                    <td style="padding: 6px 13px; border: 1px solid rgb(221, 221, 221);"><a href="https://github.com/muaz-khan/RecordRTC/tree/master/RecordRTC-to-PHP" style="color: rgb(65, 131, 196); text-decoration: none; background: transparent;">Source</a></td>
-                </tr>
-
-                <tr style="border-top-width: 1px; border-top-style: solid; border-top-color: rgb(204, 204, 204); background-color: rgb(248, 248, 248);">
-                    <td style="padding: 6px 13px; border: 1px solid rgb(221, 221, 221);">Record Mp3 Audio Files</td>
-                    <td style="padding: 6px 13px; border: 1px solid rgb(221, 221, 221);"><a href="https://www.webrtc-experiment.com/RecordRTC/Record-Mp3-or-Wav.html" style="color: rgb(65, 131, 196); text-decoration: none; background: transparent;">Demo</a></td>
-                    <td style="padding: 6px 13px; border: 1px solid rgb(221, 221, 221);"><a href="https://github.com/muaz-khan/RecordRTC/blob/master/simple-demos/Record-Mp3-or-Wav.html" style="color: rgb(65, 131, 196); text-decoration: none; background: transparent;">Source</a></td>
-                </tr>
-
-                <tr style="border-top-width: 1px; border-top-style: solid; border-top-color: rgb(204, 204, 204); background-color: rgb(248, 248, 248);">
-                    <td style="padding: 6px 13px; border: 1px solid rgb(221, 221, 221);">MRecordRTC: Multiple Videos Recording hack for Old-Chrome</td>
-                    <td style="padding: 6px 13px; border: 1px solid rgb(221, 221, 221);"><a href="https://www.webrtc-experiment.com/RecordRTC/MRecordRTC/" style="color: rgb(65, 131, 196); text-decoration: none; background: transparent;">Demo</a></td>
-                    <td style="padding: 6px 13px; border: 1px solid rgb(221, 221, 221);"><a href="https://github.com/muaz-khan/RecordRTC/tree/master/MRecordRTC" style="color: rgb(65, 131, 196); text-decoration: none; background: transparent;">Source</a></td>
-                </tr>
-
-                <tr style="border-top-width: 1px; border-top-style: solid; border-top-color: rgb(204, 204, 204); background-color: rgb(248, 248, 248);">
-                    <td style="padding: 6px 13px; border: 1px solid rgb(221, 221, 221);">WebGL Animation Recording</td>
-                    <td style="padding: 6px 13px; border: 1px solid rgb(221, 221, 221);"><a href="https://www.webrtc-experiment.com/RecordRTC/webgl/" style="color: rgb(65, 131, 196); text-decoration: none; background: transparent;">Demo</a></td>
-                    <td style="padding: 6px 13px; border: 1px solid rgb(221, 221, 221);"><a href="https://github.com/muaz-khan/RecordRTC/tree/master/WebGL-Recording" style="color: rgb(65, 131, 196); text-decoration: none; background: transparent;">Source</a></td>
-                </tr>
-
-                <tr style="border-top-width: 1px; border-top-style: solid; border-top-color: rgb(204, 204, 204); background-color: rgb(248, 248, 248);">
-                    <td style="padding: 6px 13px; border: 1px solid rgb(221, 221, 221);">plotly - WebGL Recording</td>
-                    <td style="padding: 6px 13px; border: 1px solid rgb(221, 221, 221);"><a href="https://www.webrtc-experiment.com/RecordRTC/plotly.html" style="color: rgb(65, 131, 196); text-decoration: none; background: transparent;">Demo</a></td>
-                    <td style="padding: 6px 13px; border: 1px solid rgb(221, 221, 221);"><a href="https://github.com/muaz-khan/RecordRTC/tree/master/WebGL-Recording/plotly.html" style="color: rgb(65, 131, 196); text-decoration: none; background: transparent;">Source</a></td>
-                </tr>
-
-                <tr style="border-top-width: 1px; border-top-style: solid; border-top-color: rgb(204, 204, 204); background-color: rgb(248, 248, 248);">
-                    <td style="padding: 6px 13px; border: 1px solid rgb(221, 221, 221);" colspan=2>Record Audio+Videos in Old Chrome and Merge/Mux on PHP server using Ffmpeg</td>
-                    <td style="padding: 6px 13px; border: 1px solid rgb(221, 221, 221);"><a href="https://github.com/muaz-khan/RecordRTC/tree/master/PHP-and-FFmpeg" style="color: rgb(65, 131, 196); text-decoration: none; background: transparent;">Source</a></td>
-                </tr>
-
-                <tr style="border-top-width: 1px; border-top-style: solid; border-top-color: rgb(204, 204, 204); background-color: rgb(248, 248, 248);">
-                    <td style="padding: 6px 13px; border: 1px solid rgb(221, 221, 221);" colspan=2>Record Videos and Upload to Node.js server using $.post/XHR/XMLHttpRequest</td>
-                    <td style="padding: 6px 13px; border: 1px solid rgb(221, 221, 221);"><a href="https://github.com/muaz-khan/RecordRTC/tree/master/RecordRTC-to-Nodejs" style="color: rgb(65, 131, 196); text-decoration: none; background: transparent;">Source</a></td>
-                </tr>
-
-                <tr style="border-top-width: 1px; border-top-style: solid; border-top-color: rgb(204, 204, 204); background-color: rgb(248, 248, 248);">
-                    <td style="padding: 6px 13px; border: 1px solid rgb(221, 221, 221);" colspan=2>Record Videos and Upload to ASP.NET MVC server</td>
-                    <td style="padding: 6px 13px; border: 1px solid rgb(221, 221, 221);"><a href="https://github.com/muaz-khan/RecordRTC/tree/master/RecordRTC-to-ASPNETMVC" style="color: rgb(65, 131, 196); text-decoration: none; background: transparent;">Source</a></td>
-                </tr>
-
-                <tr style="border-top-width: 1px; border-top-style: solid; border-top-color: rgb(204, 204, 204); background-color: rgb(248, 248, 248);">
-                    <td style="padding: 6px 13px; border: 1px solid rgb(221, 221, 221);" colspan=2>Record Videos and Upload to Node.js server using Socket.io</td>
-                    <td style="padding: 6px 13px; border: 1px solid rgb(221, 221, 221);"><a href="https://github.com/muaz-khan/RecordRTC/tree/master/RecordRTC-over-Socketio" style="color: rgb(65, 131, 196); text-decoration: none; background: transparent;">Source</a></td>
-                </tr>
-
-                <tr style="border-top-width: 1px; border-top-style: solid; border-top-color: rgb(204, 204, 204); background-color: rgb(248, 248, 248);">
-                    <td style="padding: 6px 13px; border: 1px solid rgb(221, 221, 221);" colspan=2>Record audio+videos in old chrome and merge/mux inside the browser using Ffmpeg-asm.js</td>
-                    <td style="padding: 6px 13px; border: 1px solid rgb(221, 221, 221);"><a href="https://www.webrtc-experiment.com/ffmpeg/" style="color: rgb(65, 131, 196); text-decoration: none; background: transparent;">Source</a></td>
-                </tr>
-            </tbody>
-            </table>
-        </section>
-
         <section class="experiment own-widgets">
             <h2 class="header" id="updates" style="color: red; padding-bottom: .1em;"><a href="https://github.com/muaz-khan/RecordRTC/issues" target="_blank">RecordRTC Issues</a>
             </h2>
@@ -903,160 +820,6 @@
             <small style="margin-left: 1em;">Enter your email too; if you want "direct" reply!</small>
         </section>
 
-        <section class="experiment">
-            <h2 class="header">Using RecordRTC...</h2>
-
-            <ol>
-                <li>
-                    You can record both Audio/Video in single file in Firefox.
-                </li>
-
-                <li>
-                    You can record both Audio/Screen in single file in Firefox.
-                </li>
-
-                <li>
-                    You can record audio as WAV and video as WebM in Chrome/Opera.
-                </li>
-
-                <li>
-                    You can record audio as WAV in Microsoft Edge.
-                </li>
-
-                <li>
-                    You can record remote audios (RTCPeerConnection.onaddstream) in Firefox using "recorderType:StereoAudioRecorder"
-                </li>
-
-                <li>
-                    You can record Gif in all browsers.
-                </li>
-            </ol>
-
-            <p style="margin-top: 0;">
-                You can even control buffer-size, sample-rates, video-resolutions, etc.
-            </p>
-        </section>
-
-        <section class="experiment">
-            <h2 class="header">Technical Guide</h2>
-            <ol>
-                <li>
-                    Chrome allows getUserMedia invocation on majority of non-file protocols e.g. HTTP/HTTPS/ or inside chrome extension pages. Though, there is always options to use CL (command-line) flags to support file protocols.
-                </li>
-
-                <li>
-                    (
-                    <strong>In Chrome</strong>) RecordRTC captures video frames via Canvas2D; which is encoded in webp-DataURL; now it is using a library named “weppy” which encodes webp into webm.
-                </li>
-
-                <li>
-                    (
-                    <strong>In Firefox</strong>) RecordRTC is using MediaRecorder API; which supports both audio/video recordings, both in single and multiple files.
-                </li>
-
-                <li>
-                    (
-                    <strong>In Chrome</strong>) RecordRTC is using WebAudio API for audio-recording. Such API has many issues e.g. unable to capture mono audio in wav format; <a href="https://www.webrtc-experiment.com/demos/remote-stream-recording.html">unable to capture remote audio</a>; failure on XP SP2; etc.
-                </li>
-
-                <li>
-                    (
-                    <strong>In Chrome</strong>) If you’re using notebook’s built-in audio input device for audio recording; then you may get "blank" blob.
-                </li>
-
-                <li>
-                    (
-                    <strong>In Chrome</strong>) RecordRTC is incapable to record audio/video in a single file; however there is ffmpeg merging solution available on Github repository.
-                </li>
-            </ol>
-        </section>
-
-        <section class="experiment">
-            <h2 class="header">
-                How to use <a href="https://github.com/muaz-khan/RecordRTC" target="_blank">RecordRTC</a>?</h2>
-            <pre>
-&lt;script src="//cdn.webrtc-experiment.com/RecordRTC.js"&gt;&lt;/script&gt;
-</pre>
-        </section>
-
-        <section class="experiment">
-            <h2 class="header">
-                How to record audio using <a href="https://github.com/muaz-khan/RecordRTC" target="_blank">RecordRTC</a>?</h2>
-            <pre>
-var recordRTC = <a href="https://github.com/muaz-khan/RecordRTC" target="_blank">RecordRTC</a>(mediaStream, {
-    <strong>recorderType</strong>: StereoAudioRecorder // optionally force WebAudio API to record audio
-});
-recordRTC.<strong>startRecording</strong>();
-recordRTC.<strong>stopRecording</strong>(function(<strong>audioURL</strong>) {
-    mediaElement.src = audioURL;
-});
-</pre>
-        </section>
-
-
-        <section class="experiment">
-            <h2 class="header">
-                How to record video using <a href="https://github.com/muaz-khan/RecordRTC" target="_blank">RecordRTC</a>?</h2>
-            <pre>
-var options = {
-    <strong>type</strong>: 'video',
-    <strong>video</strong>: { width: 320, height: 240 },
-    <strong>canvas</strong>: { width: 320, height: 240 },
-    <strong>recorderType</strong>: WhammyRecorder // optional
-};
-
-var recordRTC = <a href="https://github.com/muaz-khan/RecordRTC" target="_blank">RecordRTC</a>(mediaStream, options);
-recordRTC.<strong>startRecording</strong>();
-recordRTC.<strong>stopRecording</strong>(function(<strong>videoURL</strong>) {
-    mediaElement.src = videoURL;
-});
-</pre>
-
-        </section>
-
-        <section class="experiment">
-
-            <h2 class="header">
-                How to record animated GIF using <a href="https://github.com/muaz-khan/RecordRTC" target="_blank">RecordRTC</a>?</h2>
-            <pre>
-// you must link: // https://www.webrtc-experiment.com/gif-recorder.js
-var options = {
-    <strong>type</strong>: 'gif',
-    <strong>video</strong>: { width: 320, height: 240 },
-    <strong>canvas</strong>: { width: 320, height: 240 },
-    <strong>frameRate</strong>: 200,
-    <strong>quality</strong>: 10
-};
-
-var recordRTC = <a href="https://github.com/muaz-khan/RecordRTC" target="_blank">RecordRTC</a>(mediaStream, options);
-recordRTC.<strong>startRecording</strong>(); recordRTC.
-<strong>stopRecording</strong>(function(<strong>gifURL</strong>) {
-    mediaElement.src = gifURL;
-});
-</pre>
-        </section>
-
-        <section class="experiment">
-            <h2>
-                Possible <a href="https://github.com/muaz-khan/RecordRTC/issues" target="_blank">
-
-                                 issues</a>/<a href="https://github.com/muaz-khan/RecordRTC/issues" target="_blank">failures</a>:
-            </h2>
-            <p>
-                (
-                <strong>In Chrome</strong>) The biggest issue is that RecordRTC is
-                <strong>unable to record</strong> both audio and video streams in single file.
-                <br />
-                <br /> Do you know "RecordRTC" fails recording audio because following conditions fails (
-                <strong>applies only to chrome</strong>):
-                <ol>
-                    <li>Sample rate and channel configuration must be the same for input and output sides on Windows i.e. audio input/output devices must match</li>
-                    <li>Only the Default microphone device can be used for capturing.</li>
-                    <li>The requesting scheme is must be one of the following: http, https, chrome, extension's, or file (only works with --allow-file-access-from-files)</li>
-                    <li>The browser must be able to create/initialize the metadata database for the API under the profile directory</li>
-                </ol>
-            </p>
-        </section>
         <section class="experiment">
             <p style="margin-top: 0;">
                 RecordRTC is MIT licensed on Github! <a href="https://github.com/muaz-khan/RecordRTC" target="_blank">Documentation</a>
@@ -1074,7 +837,7 @@ recordRTC.<strong>startRecording</strong>(); recordRTC.
 
     <footer>
         <p>
-            <a href="https://www.webrtc-experiment.com/">WebRTC Experiments</a> © <a href="https://plus.google.com/+MuazKhan" rel="author" target="_blank">Muaz Khan</a>
+            <a href="https://www.webrtc-experiment.com/">WebRTC Experiments</a> © <a href="https://MuazKhan.com" rel="author" target="_blank">Muaz Khan</a>
             <a href="mailto:muazkh@gmail.com" target="_blank">muazkh@gmail.com</a>
         </p>
     </footer>

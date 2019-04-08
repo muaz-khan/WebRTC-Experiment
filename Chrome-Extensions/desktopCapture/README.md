@@ -1,3 +1,42 @@
+# Please use `getDisplayMedia` instead
+
+```javascript
+getScreenStream(function(screenStream) {
+    video.srcObject = screenStream;
+});
+
+function getScreenStream(callback) {
+    if (navigator.getDisplayMedia) {
+        navigator.getDisplayMedia({
+            video: true
+        }).then(screenStream => {
+            callback(screenStream);
+        });
+    } else if (navigator.mediaDevices.getDisplayMedia) {
+        navigator.mediaDevices.getDisplayMedia({
+            video: true
+        }).then(screenStream => {
+            callback(screenStream);
+        });
+    } else {
+        getScreenId(function(error, sourceId, screen_constraints) {
+            navigator.mediaDevices.getUserMedia(screen_constraints).then(function(screenStream) {
+                callback(screenStream);
+            });
+        });
+    }
+}
+```
+
+## Disclaimer
+
+No more maintaining this extension; as of 2019. So please use at your own risk.
+
+* https://www.webrtc-experiment.com/disclaimer/
+
+----
+
+
 # Google Chrome [desktopCapture extension](https://github.com/muaz-khan/Chrome-Extensions/tree/master/desktopCapture)
 
 > This chrome extension simply captures content of your screen. It returns `source-id` to callee; and that `source-id` can be used as `chromeMediaSourceId` in WebRTC applications to capture screen's MediaStream.
@@ -13,12 +52,11 @@ Note: Following demos works only if you install chrome extension from [Google We
 * https://www.webrtc-experiment.com/getScreenId/
 * https://www.webrtc-experiment.com/Screen-Capturing/
 * https://www.webrtc-experiment.com/Pluginfree-Screen-Sharing/ (peer to peer)
-* https://www.webrtc-experiment.com/RecordRTC/simple-demos/video-plus-screen-recording.html (rcording)
-* https://www.webrtc-experiment.com/RecordRTC/ (select screen from dropdown)
+
 
 # How to modify this chrome extension?
 
-1. Download [ZIP](http://webrtcweb.com/desktopCapture.zip) or [TAR](http://webrtcweb.com/desktopCapture.tar.gz)
+1. Download ZIP
 2. Windows users can use WinZip/WinRAR/7Zip however MacOSX/Linux users can use `tar -zxvf desktopCapture.tar.gz` to extract the archive
 3. Add your own domain [here at line #17](https://github.com/muaz-khan/Chrome-Extensions/blob/master/desktopCapture/manifest.json#L17)
 4. LocalHost users can test directly by adding `unpacked extension..` via `chrome://extensions/`
@@ -104,33 +142,6 @@ getScreenId(function (error, sourceId, screen_constraints) {
 });
 </script>
 ```
-
-----
-
-# Other Extensions
-
-| Description        | Download           | Install |
-| ------------- |-------------|-------------|
-| Record full screen, apps' screen, youtube audio, and more. | [Source Code](https://github.com/muaz-khan/Chrome-Extensions/tree/master/screen-recording) | [Install from Google Web Store](https://chrome.google.com/webstore/detail/recordrtc/ndcljioonkecdnaaihodjgiliohngojp) |
-| Share full screen, apps' screen, youtube audio, and more. | [Source Code](https://github.com/muaz-khan/Chrome-Extensions/tree/master/desktopCapture-p2p) | [Install from Google Web Store](https://chrome.google.com/webstore/detail/webrtc-desktop-sharing/nkemblooioekjnpfekmjhpgkackcajhg)  |
-| Access/capture screen from any HTTPs domain. | [Source Code](https://github.com/muaz-khan/Chrome-Extensions/tree/master/desktopCapture) | [Install from Google Web Store](https://chrome.google.com/webstore/detail/screen-capturing/ajhifddimkapgcifgcodmmfdlknahffk) |
-| Share selected tab (peer-to-peer). | [Source Code](https://github.com/muaz-khan/Chrome-Extensions/tree/master/tabCapture) | [Install from Google Web Store](https://chrome.google.com/webstore/detail/tab-capturing-sharing/pcnepejfgcmidedoimegcafiabjnodhk) |
-| Share files peer-to-peer. | [Source Code](https://github.com/muaz-khan/Chrome-Extensions/tree/master/file-sharing) | [Install from Google Web Store](https://chrome.google.com/webstore/detail/tab-capturing-sharing/pcnepejfgcmidedoimegcafiabjnodhk) |
-
-### List of applications that are using same extension:
-
-1. [RecordRTC.js](https://github.com/muaz-khan/RecordRTC) - a WebRTC wrapper library for audio+video+screen activity recording
-2. [RTCMultiConnection.js](https://github.com/muaz-khan/RTCMultiConnection) - a WebRTC wrapper library for peer-to-peer applications
-3. [getScreenId.js](https://github.com/muaz-khan/getScreenId) - a tinny javascript library that can be used in any domain, application or WebRTC wrapper library.
-4. [Screen.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/screen-sharing) - a screen capturing library along with multi-user p2p screen streaming.
-5. [Pluginfree Screen Sharing](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/Pluginfree-Screen-Sharing) - a standalone application, providing multi-user p2p screen streaming in HD format.
-
-
-## Disclaimer
-
-There is no warranty, expressed or implied, associated with this product. Use at your own risk.
-
-* https://www.webrtc-experiment.com/disclaimer/
 
 ## License
 

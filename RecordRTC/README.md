@@ -287,7 +287,7 @@ let browserInfo = {isSafari, isChrome, isFirefox, isEdge, isOpera};
 DiskStorage = {
     init: function() {},
     Fetch: function({audioBlob: Blob, videoBlob: Blob, gifBlob: Blob}) {},
-    Store: functiom({audioBlob: Blob, videoBlob: Blob, gifBlob: Blob}) {},
+    Store: function({audioBlob: Blob, videoBlob: Blob, gifBlob: Blob}) {},
     onError: function() {},
     dataStoreName: function() {}
 };
@@ -338,7 +338,7 @@ DiskStorage = {
 | Framework     | Github               | Article            |
 | ------------- |-------------        |-------------     |
 | Angular2      | [github](https://github.com/ShankarSumanth/Angular2-RecordRTC) | [article](https://medium.com/@SumanthShankar/integrate-recordrtc-with-angular-2-typescript-942c9c4ca93f#.7x5yf2nr5) |
-| Rect.js       | [github](https://github.com/szwang/recordrtc-react) | [article](http://suzannewang.com/recordrtc/) |
+| React.js       | [github](https://github.com/szwang/recordrtc-react) | [article](http://suzannewang.com/recordrtc/) |
 | Video.js      | [github](https://github.com/collab-project/videojs-record) | None |
 | Meteor        | [github](https://github.com/launchbricklabs/recordrtc-meteor-demo) | None |
 
