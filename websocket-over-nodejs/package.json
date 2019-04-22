@@ -1,7 +1,7 @@
 {
   "name": "websocket-over-nodejs",
   "preferGlobal": true,
-  "version": "0.0.4",
+  "version": "0.0.6",
   "author": {
     "name": "Muaz Khan",
     "email": "muazkh@gmail.com"
@@ -36,7 +36,7 @@
   "bugs": {
     "url": "https://github.com/muaz-khan/WebRTC-Experiment/issues"
   },
-  "homepage": "https://webrtcweb.com:9449/",
+  "homepage": "https://github.com/muaz-khan/WebRTC-Experiment/tree/master/websocket-over-nodejs",
   "_id": "websocket-over-nodejs@",
   "_from": "websocket-over-nodejs@"
 }

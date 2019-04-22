@@ -2,7 +2,7 @@
   "name": "socketio-over-nodejs",
   "subdomain": "socketio-over-nodejs",
   "preferGlobal": true,
-  "version": "3.0.2",
+  "version": "3.0.3",
   "author": {
     "name": "Muaz Khan",
     "email": "muazkh@gmail.com"
@@ -15,9 +15,9 @@
     }
   ],
   "scripts": {
-    "start": "node signaler.js"
+    "start": "node server.js"
   },
-  "main": "signaler.js",
+  "main": "server.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/muaz-khan/WebRTC-Experiment.git"
@@ -46,8 +46,7 @@
     "node": ">=0.6"
   },
   "dependencies": {
-    "socket.io": "0.9.x",
-    "node-static": "0.7.x"
+    "socket.io": "0.9.x"
   },
   "bugs": {
     "url": "https://github.com/muaz-khan/WebRTC-Experiment/issues"

@@ -2,6 +2,16 @@
 
 [![npm](https://img.shields.io/npm/v/websocket-over-nodejs.svg)](https://npmjs.org/package/websocket-over-nodejs) [![downloads](https://img.shields.io/npm/dm/websocket-over-nodejs.svg)](https://npmjs.org/package/websocket-over-nodejs)
 
+#### `server.js` file
+
+This is the file that I was running on `wss://webrtcweb.com:9449/`. I'll recommend to modify and use this file.
+
+```sh
+npm install ebsocket-over-nodejs
+```
+
+#### Explanation
+
 This repository has following kinds of browser-based demos:
 
 1. Text Chat using rooms

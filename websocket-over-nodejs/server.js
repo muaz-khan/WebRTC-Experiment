@@ -15,9 +15,8 @@ var fs = require('fs');
 var options = {
     // key: fs.readFileSync('fake-keys/privatekey.pem'),
     // cert: fs.readFileSync('fake-keys/certificate.pem')
-    key: fs.readFileSync('/home/ssl/webrtcweb.key'),
-    cert: fs.readFileSync('/home/ssl/server.csr'),
-    ca: fs.readFileSync('/home/ssl/inter.csr')
+    key: fs.readFileSync('/etc/letsencrypt/live/webrtcweb.com/privkey.pem'),
+    cert: fs.readFileSync('/etc/letsencrypt/live/webrtcweb.com/fullchain.pem')
 };
 
 // HTTPs server
