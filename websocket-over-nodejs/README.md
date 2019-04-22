@@ -7,7 +7,7 @@
 This is the file that I was running on `wss://webrtcweb.com:9449/`. I'll recommend to modify and use this file.
 
 ```sh
-npm install ebsocket-over-nodejs
+npm install websocket-over-nodejs
 ```
 
 #### Explanation
