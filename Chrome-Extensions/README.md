@@ -7,8 +7,6 @@
 
 ## Disclaimer
 
-No more maintaining any of these extensions; as of 2019. So please use at your own risk.
-
 * https://www.webrtc-experiment.com/disclaimer/
 
 ## License

@@ -1,11 +1,3 @@
-# Disclaimer
-
-No more maintaining this extension; as of 2019. So please use at your own risk.
-
-* https://www.webrtc-experiment.com/disclaimer/
-
-----
-
 # Record Screen Activity, Camera, Tab, Speakers and Microphone in 4K HD video (H264, VP8, VP9, MKV)
 
 <a target="_blank" href="https://chrome.google.com/webstore/detail/recordrtc/ndcljioonkecdnaaihodjgiliohngojp">![Try it now in CWS](https://raw.github.com/GoogleChrome/chrome-app-samples/master/tryitnowbutton.png "Click here to install this extension from the Chrome Web Store")</a>
@@ -100,6 +92,10 @@ const getSupoortedFormats = [{
 1. First step is to initialize the constructor `new RecordRTC_Extension()`.
 2. Second step is, pass two parameters on `startRecording`. First paramter is named as `recording-formats` and last parameter is named as `recording-start-callback`.
 3. Manually stop the recording using `stopRecording` method. Callback contains two arguments. First argument is `Blob` object and second argument is `error` string.
+
+## Disclaimer
+
+* https://www.webrtc-experiment.com/disclaimer/
 
 ## License
 

@@ -2,9 +2,15 @@
 
 # RTCMultiConnection - WebRTC JavaScript Library
 
-### Demos: https://rtcmulticonnection.herokuapp.com/demos/
-
 [![npm](https://img.shields.io/npm/v/rtcmulticonnection.svg)](https://npmjs.org/package/rtcmulticonnection) [![downloads](https://img.shields.io/npm/dm/rtcmulticonnection.svg)](https://npmjs.org/package/rtcmulticonnection) [![Build Status: Linux](https://travis-ci.org/muaz-khan/RTCMultiConnection.png?branch=master)](https://travis-ci.org/muaz-khan/RTCMultiConnection)
+
+> Demos may not work without a TURN-server. So please set your own TURN-servers using `connetion.iceServers` array.
+
+## Socket.io Signaling Server
+
+Signaling server has a separate repository:
+
+* https://github.com/muaz-khan/RTCMultiConnection-Server
 
 ## Getting Started Without Any Installation
 
@@ -34,12 +40,6 @@ npm install
 node server --port=9001
 ```
 
-## Socket.io Signaling Server
-
-Signaling server has a separate repository:
-
-* https://github.com/muaz-khan/RTCMultiConnection-Server
-
 ## Integrate Inside Any Nodejs Application
 
 * https://github.com/muaz-khan/RTCMultiConnection-Server/wiki/Integrate-inside-nodejs-applications
@@ -62,12 +62,6 @@ RTCMultiConnection is using `Grunt` to compile javascript into `dist` directory:
 
 1. https://github.com/muaz-khan/RTCMultiConnection/wiki
 2. https://github.com/muaz-khan/RTCMultiConnection-Server/wiki
-
-## iOS+Android Mobile Apps
-
-ionic/cordova mobile apps has a separate repository:
-
-* https://github.com/muaz-khan/cordova-mobile-apps
 
 ## Disclaimer
 

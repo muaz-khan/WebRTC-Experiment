@@ -1,11 +1,3 @@
-# Disclaimer
-
-No more maintaining this extension; as of 2019. So please use at your own risk.
-
-* https://www.webrtc-experiment.com/disclaimer/
-
-----
-
 # Chrome extension for WebRTC Screen Sharing
 
 <a target="_blank" href="https://chrome.google.com/webstore/detail/webrtc-desktop-sharing/nkemblooioekjnpfekmjhpgkackcajhg"><img alt="WebRTC Screen Sharing" src="https://lh3.googleusercontent.com/hoWYXBvzcszyre-LlNVq5i_lEFtqVXYrTJ8gnkVw35vv5xWyUx7sw8VPMrGXjHpxUcV0n3Ie=w640-h400-e365" title="WebRTC Screen Sharing"></img></a>
@@ -71,6 +63,10 @@ For additional information, click [this link](https://github.com/muaz-khan/WebRT
 ## It is Open-Sourced!
 
 * https://github.com/muaz-khan/Chrome-Extensions/tree/master/desktopCapture-p2p
+
+## Disclaimer
+
+* https://www.webrtc-experiment.com/disclaimer/
 
 ## License
 
