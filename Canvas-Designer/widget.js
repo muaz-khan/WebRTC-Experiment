@@ -1,4 +1,4 @@
-// Last time updated: 2019-02-08 7:50:22 AM UTC
+// Last time updated: 2019-03-08 2:53:41 PM UTC
 
 // _______________
 // Canvas-Designer
@@ -3968,7 +3968,7 @@
 
     function onTextFromClipboard(e) {
         if (!is.isText) return;
-        var pastedText = undefined;
+        var pastedText;
         if (window.clipboardData && window.clipboardData.getData) { // IE
             pastedText = window.clipboardData.getData('Text');
         } else if (e.clipboardData && e.clipboardData.getData) {

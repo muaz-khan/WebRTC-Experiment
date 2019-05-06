@@ -8,7 +8,7 @@ describe('DetectRTC', function() {
         console.log('\x1b[31m%s\x1b[0m ', 'dev/getBrowserInfo.js');
         console.log('\x1b[31m%s\x1b[0m ', 'dev/detectPrivateBrowsing.js');
 
-        browser.driver.get('https://webrtcweb.com/DetectRTC/getBrowserInfo.html').then(function() {
+        browser.driver.get('https://www.webrtc-experiment.com/DetectRTC/tests/getBrowserInfo.html').then(function() {
             var browserName = '';
             var browserVersion = 0;
             var browserFullVersion = 0;

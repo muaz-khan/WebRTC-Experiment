@@ -225,6 +225,26 @@ Pass array-of-points that are shared by remote users using socket.io or websocke
 designer.syncData(arrayOfPoints);
 ```
 
+An example to pass custom data on Canvas-Designer:
+
+```javascript
+var x = 0;
+var y = 0;
+var width = designer.iframe.clientWidth;
+var height = designer.iframe.clientHeight;
+
+var image = 'https://cdn.webrtc-experiment.com/images/RTCMultiConnection-STUN-TURN-usage.png';
+
+var points = [
+    ['image', [image, x, y, width, height, 1], ['2', '#6c96c8', 'rgba(0,0,0,0)', '1', 'source-over', 'round', 'round', '15px "Arial"']]
+];
+
+designer.syncData({
+    startIndex: 0,
+    points: points
+});
+```
+
 ## `clearCanvas`
 
 Remove and clear all drawings from the canvas:
@@ -650,23 +670,7 @@ ctrl+v (paste last-copied shape)
 
 # Signaling Server
 
-You need only these two files:
-
-1. [server.js](https://github.com/muaz-khan/RTCMultiConnection/blob/master/server.js)
-2. [Signaling-Server.js](https://github.com/muaz-khan/RTCMultiConnection/blob/master/Signaling-Server.js)
-
-You also need to manually install `socket.io`:
-
-```sh
-wget https://raw.githubusercontent.com/muaz-khan/RTCMultiConnection/master/server.js
-wget https://raw.githubusercontent.com/muaz-khan/RTCMultiConnection/master/Signaling-Server.js
-npm install socket.io --save-dev
-node server --port=9002 --ssl --ssl_key=/home/ssl/ssl.key --ssl_cert=/home/ssl/ssl.crt
-```
-
-For more info:
-
-* https://github.com/muaz-khan/RTCMultiConnection/tree/master/docs/installation-guide.md
+* https://github.com/muaz-khan/RTCMultiConnection-Server
 
 # Contributors
 

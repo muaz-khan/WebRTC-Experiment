@@ -6,8 +6,7 @@ function gotTabCaptureStream(stream, constraints) {
             return;
         }
         return alert('still no tabCapture stream');
-        chrome.runtime.reload();
-        return;
+        // chrome.runtime.reload();
     }
 
     var newStream = new MediaStream();

@@ -19,7 +19,7 @@ function gotStream(stream) {
 
     addStreamStopListener(stream, function() {
         setDefaults();
-        chrome.runtime.reload();
+        // chrome.runtime.reload();
     });
 
     // as it is reported that if you drag chrome screen's status-bar

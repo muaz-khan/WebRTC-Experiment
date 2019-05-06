@@ -1,0 +1,20 @@
+<script src="https://cdn.webrtc-experiment.com/DetectRTC.js"> </script>
+<script type="text/javascript">
+['hasWebcam', 'hasMicrophone', 'hasSpeakers', 'isApplyConstraintsSupported',
+    'isAudioContextSupported', 'isCanvasSupportsStreamCapturing',
+    'isCreateMediaStreamSourceSupported', 'isGetUserMediaSupported',
+    'isMobileDevice', 'isMultiMonitorScreenCapturingSupported', 'isORTCSupported',
+    'isPromisesSupported', 'isRTPSenderReplaceTracksSupported', 'isRemoteStreamProcessingSupported',
+    'isRtpDataChannelsSupported', 'isScreenCapturingSupported', 'isSctpDataChannelsSupported',
+    'isSetSinkIdSupported', 'isVideoSupportsStreamCapturing', 'isWebRTCSupported',
+    'isWebSocketsBlocked', 'isWebSocketsSupported', 'isWebsiteHasMicrophonePermissions', 'isWebsiteHasWebcamPermissions'
+].forEach(function(prop) {
+    if(typeof DetectRTC[prop] === 'undefined') {
+        return;
+    }
+
+    var p = document.createElement('p');
+    p.innerHTML = prop + ': <span id="' + prop + '">' + DetectRTC[prop] + '</span><hr>';
+    (document.body || document.documentElement).appendChild(p);
+});
+</script>

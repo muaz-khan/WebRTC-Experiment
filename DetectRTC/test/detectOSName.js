@@ -5,7 +5,7 @@ describe('DetectRTC', function() {
         console.log('\x1b[31m%s\x1b[0m ', 'dev/isMobile.js');
         console.log('\x1b[31m%s\x1b[0m ', 'dev/detectDesktopOS.js');
 
-        browser.driver.get('https://webrtcweb.com/DetectRTC/detectOSName.html').then(function() {
+        browser.driver.get('https://www.webrtc-experiment.com/DetectRTC/tests/detectOSName.html').then(function() {
             var osName = '';
             var osVersion = 0;
 

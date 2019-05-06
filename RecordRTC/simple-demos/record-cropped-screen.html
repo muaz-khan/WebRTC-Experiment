@@ -31,9 +31,9 @@
 
 <video id="mediaElement" autoplay playsinline></video>
 
-<script src="https://cdn.webrtc-experiment.com/RecordRTC.js"></script>
+<script src="https://www.webrtc-experiment.com/RecordRTC.js"></script>
 <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
-<script src="https://cdn.WebRTC-Experiment.com/getScreenId.js"></script>
+<script src="https://www.webrtc-experiment.com/getScreenId.js"></script>
 <script>
 // this script tag is taken from: https://github.com/andersevenrud/webrtc-screenshare-crop-demo
 var CROP_X = 10;
@@ -126,14 +126,26 @@ function CropFrame(ev, stream, video, callback) {
 
 var recorder;
 
-function captureScreen(cb) {
-    getScreenId(function(error, sourceId, screen_constraints) {
-        navigator.mediaDevices.getUserMedia(screen_constraints).then(cb).catch(function(error) {
-            console.error('getScreenId error', error);
-
-            alert('Failed to capture your screen. Please check Chrome console logs for further information.');
+function getScreenStream(callback) {
+    if (navigator.getDisplayMedia) {
+        navigator.getDisplayMedia({
+            video: true
+        }).then(screenStream => {
+            callback(screenStream);
         });
-    });
+    } else if (navigator.mediaDevices.getDisplayMedia) {
+        navigator.mediaDevices.getDisplayMedia({
+            video: true
+        }).then(screenStream => {
+            callback(screenStream);
+        });
+    } else {
+        getScreenId(function(error, sourceId, screen_constraints) {
+            navigator.mediaDevices.getUserMedia(screen_constraints).then(function(screenStream) {
+                callback(screenStream);
+            });
+        });
+    }
 }
 
 var mediaElement = document.querySelector('#mediaElement');
@@ -141,7 +153,7 @@ var mediaElement = document.querySelector('#mediaElement');
 document.querySelector('#btn-start-recording').onclick = function() {
     document.querySelector('#btn-start-recording').style.display = 'none';
 
-    captureScreen(function(screen) {
+    getScreenStream(function(screen) {
         var inited = false;
 
         mediaElement.ontimeupdate = function(ev) {
@@ -232,4 +244,4 @@ querySelectorAll('input').forEach(function(input) {
 
 <section><small id="send-message"></small></section>
 <script>window.useThisGithubPath = 'muaz-khan/RecordRTC';</script>
-<script src="https://cdn.webrtc-experiment.com/commits.js" async></script>
+<script src="https://www.webrtc-experiment.com/commits.js" async></script>

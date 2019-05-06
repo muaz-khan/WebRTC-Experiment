@@ -1,5 +1,3 @@
-<script>window.demoVersion = '2018.12.20';</script>
-
 <!--
 > Muaz Khan     - www.MuazKhan.com
 > MIT License   - www.WebRTC-Experiment.com/licence
@@ -18,7 +16,7 @@
         <meta name="author" content="Muaz Khan">
         <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
 
-        <link rel="stylesheet" href="https://cdn.webrtc-experiment.com/style.css">
+        <link rel="stylesheet" href="https://www.webrtc-experiment.com/style.css">
 
         <style>
             audio {
@@ -77,8 +75,8 @@
             Script used to detect WebRTC features!
             https://github.com/muaz-khan/DetectRTC#how-to-link
         -->
-        <script src="https://cdn.webrtc-experiment.com/DetectRTC.js"> </script>
-        <script src="https://cdn.webrtc-experiment.com/screenshot.js"></script>
+        <script src="https://www.webrtc-experiment.com/DetectRTC.js"> </script>
+        <script src="https://www.webrtc-experiment.com/screenshot.js"></script>
         <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
     </head>
 
@@ -108,12 +106,7 @@
                 </a>
             </div>
 
-            <section style="margin: 20px; text-align: center; color: red;">
-                <small id="demoVersion"></small>
-                <script>var date=new Date(window.demoVersion),month=date.toLocaleString("en-us",{month:"long"}),day=date.getDate();day.toString().length<=9&&(day=day.toString().length == 1 ? "0"+day : day);var year=date.getFullYear(); document.getElementById("demoVersion").innerHTML="Last Updated On: <time>"+month+" "+day+" "+year+"</time>";</script>
-            </section>
-
-            <div class="github-stargazers"></div>
+            <div class="github-stargazers" style="margin-top: 30px;"></div>
 
             <section class="experiment" id="detectrtc-output">
                 <button id="generate-image" style="float:right;">Open as Image</button>
@@ -123,13 +116,6 @@
 
             <!-- dirty trick to bypass webrtc blockers -->
             <iframe id="iframe" sandbox="allow-same-origin" style="display: none"></iframe>
-
-            <section class="experiment" style="padding: 10px 20px; text-align: center;">
-                <a href="https://chrome.google.com/webstore/detail/detectrtc/infnkpmpcmmofkmndpheeplkcghgdjbf" target="_blank">
-                    <img alt="DetectRTC" src="https://webrtcweb.com/DetectRTC/icon.png" style="width: 20px;vertical-align: middle;margin-right: 3px;">
-                    DetectRTC Google Chrome Extension
-                </a>
-            </section>
 
             <script>
                 var browserFeaturesTable = document.querySelector('#browser-features');
@@ -503,7 +489,7 @@ rtpSenders.replaceTrack(newTrack);';
                 <h2 class="header">
                     How to use <a href="https://github.com/muaz-khan/DetectRTC" target="_blank">DetectRTC</a>?</h2>
                 <pre class="sh_html">
-&lt;script src="https://cdn.WebRTC-Experiment.com/DetectRTC.js"&gt;&lt;/script&gt;
+&lt;script src="https://www.webrtc-experiment.com/DetectRTC.js"&gt;&lt;/script&gt;
 &lt;script&gt;
 // OR otherwise use <a href="https://www.npmjs.com/package/detectrtc">NPM</a>
 var DetectRTC = require('detectrtc');
@@ -572,6 +558,6 @@ DetectRTC.load(function() {
         <script>
             window.useThisGithubPath = 'muaz-khan/DetectRTC';
         </script>
-        <script src="https://cdn.webrtc-experiment.com/commits.js" async> </script>
+        <script src="https://www.webrtc-experiment.com/commits.js" async> </script>
     </body>
 </html>

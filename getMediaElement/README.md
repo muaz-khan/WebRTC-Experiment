@@ -5,15 +5,15 @@
 This library generates HTML Audio/Video element with rich user-interface and advance media controls. It gives you full control over each control button; and its functionality!
 
 ```html
-<link rel="stylesheet" href="https://cdn.WebRTC-Experiment.com/getMediaElement.css" />
-<script src="https://cdn.webrtc-experiment.com/getMediaElement.js"></script>
+<link rel="stylesheet" href="https://www.webrtc-experiment.com/getMediaElement.css" />
+<script src="https://www.webrtc-experiment.com/getMediaElement.js"></script>
 ```
 
 ```sh
 npm install getMediaElement
 ```
 
-<img src="https://cdn.webrtc-experiment.com/images/getMediaElement.js.gif" />
+<img src="https://www.webrtc-experiment.com/images/getMediaElement.js.gif" />
 
 ## A working example:
 

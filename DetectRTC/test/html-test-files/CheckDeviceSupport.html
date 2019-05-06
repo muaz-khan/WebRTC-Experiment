@@ -1,0 +1,12 @@
+audioInputDevices: <span id="audioInputDevices"></span><hr>
+audioOutputDevices: <span id="audioOutputDevices"></span><hr>
+videoInputDevices: <span id="videoInputDevices"></span>
+
+<script src="https://cdn.webrtc-experiment.com/DetectRTC/dev/CheckDeviceSupport.js"> </script>
+<script type="text/javascript">
+    checkDeviceSupport(function() {
+        document.getElementById('audioInputDevices').innerHTML = audioInputDevices.length;
+        document.getElementById('audioOutputDevices').innerHTML = audioOutputDevices.length;
+        document.getElementById('videoInputDevices').innerHTML = videoInputDevices.length;
+    });
+</script>

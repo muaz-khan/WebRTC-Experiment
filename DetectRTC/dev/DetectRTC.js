@@ -45,7 +45,7 @@ if (DetectRTC.browser.isChrome && DetectRTC.browser.version >= 35) {
     isScreenCapturingSupported = true;
 }
 
-if(!!navigator.getDisplayMedia || (navigator.mediaDevices && navigator.mediaDevices.getDisplayMedia)) {
+if (!!navigator.getDisplayMedia || (navigator.mediaDevices && navigator.mediaDevices.getDisplayMedia)) {
     isScreenCapturingSupported = true;
 }
 

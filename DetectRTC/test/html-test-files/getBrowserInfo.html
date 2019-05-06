@@ -1,0 +1,18 @@
+browserName: <span id="browserName"></span><hr>
+browserVersion: <span id="browserVersion"></span><hr>
+browserFullVersion: <span id="browserFullVersion"></span><hr>
+isPrivateBrowsing: <span id="isPrivateBrowsing"></span>
+
+<script src="https://cdn.webrtc-experiment.com/DetectRTC/dev/getBrowserInfo.js"> </script>
+<script src="https://cdn.webrtc-experiment.com/DetectRTC/dev/detectPrivateBrowsing.js"> </script>
+<script type="text/javascript">
+    var browser = getBrowserInfo();
+
+    document.getElementById('browserName').innerHTML = browser.name;
+    document.getElementById('browserVersion').innerHTML = browser.version;
+    document.getElementById('browserFullVersion').innerHTML = browser.fullVersion;
+
+    detectPrivateMode(function(isPrivateBrowsing) {
+        document.getElementById('isPrivateBrowsing').innerHTML = isPrivateBrowsing;
+    });
+</script>

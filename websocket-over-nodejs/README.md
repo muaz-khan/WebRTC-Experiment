@@ -14,37 +14,6 @@ Now open `https://localhost:9449/` or use this `wss://localhost.com:9449/`.
 
 # How to use?
 
-Following code explains how to override [`openSignalingChannel`](http://www.rtcmulticonnection.org/docs/openSignalingChannel/) method in your HTML pages; `openSignalingChannel` is useful only for RTCMultiConnection.js and DataChannel.js. For other WebRTC Experiments, please check next section.
-
-```javascript
-var SIGNALING_SERVER = 'wss://localhost.com:9449/';
-connection.openSignalingChannel = function(config) {
-    config.channel = config.channel || this.channel;
-    var websocket = new WebSocket(SIGNALING_SERVER);
-    websocket.channel = config.channel;
-    websocket.onopen = function() {
-        websocket.push(JSON.stringify({
-            open: true,
-            channel: config.channel
-        }));
-        if (config.callback)
-            config.callback(websocket);
-    };
-    websocket.onmessage = function(event) {
-        config.onmessage(JSON.parse(event.data));
-    };
-    websocket.push = websocket.send;
-    websocket.send = function(data) {
-        websocket.push(JSON.stringify({
-            data: data,
-            channel: config.channel
-        }));
-    };
-}
-```
-
-# How to use for `openSocket`?
-
 `openSocket` is used in all standalone WebRTC Experiments. You can define this method in your `ui.js` file or in your HTML page.
 
 ```javascript

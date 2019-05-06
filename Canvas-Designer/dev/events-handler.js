@@ -239,7 +239,7 @@ addEvent(document, 'keypress', onkeypress);
 
 function onTextFromClipboard(e) {
     if (!is.isText) return;
-    var pastedText = undefined;
+    var pastedText;
     if (window.clipboardData && window.clipboardData.getData) { // IE
         pastedText = window.clipboardData.getData('Text');
     } else if (e.clipboardData && e.clipboardData.getData) {

@@ -170,15 +170,15 @@ function shareStreamUsingRTCMultiConnection(stream) {
         if(connection.getAllParticipants().length > 0) return;
         
         setDefaults();
-        chrome.runtime.reload();
+        // chrome.runtime.reload();
     };
 
     connection.onSocketError = function(event) {
         alert('Unable to connect to the server. Please try again.');
         
         setTimeout(function() {
-            setDefaults();
-            chrome.runtime.reload();
+            // setDefaults();
+            // chrome.runtime.reload();
         }, 1000);
     };
 

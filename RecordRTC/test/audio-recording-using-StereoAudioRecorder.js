@@ -7,7 +7,7 @@ describe('RecordRTC', function() {
         console.log('------------------------------');
         console.log('\x1b[31m%s\x1b[0m ', 'audio-recording-using-StereoAudioRecorder');
 
-        browser.driver.get('https://webrtcweb.com/RecordRTC/tests/audio-recording-using-StereoAudioRecorder.html').then(function() {
+        browser.driver.get('https://www.webrtc-experiment.com/RecordRTC/tests/audio-recording-using-StereoAudioRecorder.html').then(function() {
             // wait until RecordRTC ends the recording
             (function looper() {
                 var isRecordingStopped = false;

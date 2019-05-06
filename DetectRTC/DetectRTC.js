@@ -1,6 +1,6 @@
 'use strict';
 
-// Last Updated On: 2019-01-12 7:01:30 AM UTC
+// Last Updated On: 2019-05-03 5:27:06 AM UTC
 
 // ________________
 // DetectRTC v1.3.9
@@ -96,12 +96,6 @@
         var majorVersion = parseInt(navigator.appVersion, 10);
         var nameOffset, verOffset, ix;
 
-        // both and safri and chrome has same userAgent
-        if (isSafari && !isChrome && nAgt.indexOf('CriOS') !== -1) {
-            isSafari = false;
-            isChrome = true;
-        }
-
         // In Opera, the true version is after 'Opera' or after 'Version'
         if (isOpera) {
             browserName = 'Opera';
@@ -133,17 +127,28 @@
         }
         // In Safari, the true version is after 'Safari' or after 'Version' 
         else if (isSafari) {
-            verOffset = nAgt.indexOf('Safari');
+            // both and safri and chrome has same userAgent
+            if (nAgt.indexOf('CriOS') !== -1) {
+                verOffset = nAgt.indexOf('CriOS');
+                browserName = 'Chrome';
+                fullVersion = nAgt.substring(verOffset + 6);
+            } else if (nAgt.indexOf('FxiOS') !== -1) {
+                verOffset = nAgt.indexOf('FxiOS');
+                browserName = 'Firefox';
+                fullVersion = nAgt.substring(verOffset + 6);
+            } else {
+                verOffset = nAgt.indexOf('Safari');
 
-            browserName = 'Safari';
-            fullVersion = nAgt.substring(verOffset + 7);
+                browserName = 'Safari';
+                fullVersion = nAgt.substring(verOffset + 7);
 
-            if ((verOffset = nAgt.indexOf('Version')) !== -1) {
-                fullVersion = nAgt.substring(verOffset + 8);
-            }
+                if ((verOffset = nAgt.indexOf('Version')) !== -1) {
+                    fullVersion = nAgt.substring(verOffset + 8);
+                }
 
-            if (navigator.userAgent.indexOf('Version/') !== -1) {
-                fullVersion = navigator.userAgent.split('Version/')[1].split(' ')[0];
+                if (navigator.userAgent.indexOf('Version/') !== -1) {
+                    fullVersion = navigator.userAgent.split('Version/')[1].split(' ')[0];
+                }
             }
         }
         // In Firefox, the true version is after 'Firefox' 
@@ -352,6 +357,9 @@
 
         var os = unknown;
         var clientStrings = [{
+            s: 'Chrome OS',
+            r: /CrOS/
+        }, {
             s: 'Windows 10',
             r: /(Windows 10.0|Windows NT 10.0)/
         }, {
@@ -883,8 +891,12 @@
     } else if (DetectRTC.browser.isFirefox && DetectRTC.browser.version >= 34) {
         isScreenCapturingSupported = true;
     } else if (DetectRTC.browser.isEdge && DetectRTC.browser.version >= 17) {
-        isScreenCapturingSupported = true; // navigator.getDisplayMedia
+        isScreenCapturingSupported = true;
     } else if (DetectRTC.osName === 'Android' && DetectRTC.browser.isChrome) {
+        isScreenCapturingSupported = true;
+    }
+
+    if (!!navigator.getDisplayMedia || (navigator.mediaDevices && navigator.mediaDevices.getDisplayMedia)) {
         isScreenCapturingSupported = true;
     }
 

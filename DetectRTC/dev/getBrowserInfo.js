@@ -19,12 +19,6 @@ function getBrowserInfo() {
     var majorVersion = parseInt(navigator.appVersion, 10);
     var nameOffset, verOffset, ix;
 
-    // both and safri and chrome has same userAgent
-    if (isSafari && !isChrome && nAgt.indexOf('CriOS') !== -1) {
-        isSafari = false;
-        isChrome = true;
-    }
-
     // In Opera, the true version is after 'Opera' or after 'Version'
     if (isOpera) {
         browserName = 'Opera';
@@ -56,17 +50,28 @@ function getBrowserInfo() {
     }
     // In Safari, the true version is after 'Safari' or after 'Version' 
     else if (isSafari) {
-        verOffset = nAgt.indexOf('Safari');
+        // both and safri and chrome has same userAgent
+        if (nAgt.indexOf('CriOS') !== -1) {
+            verOffset = nAgt.indexOf('CriOS');
+            browserName = 'Chrome';
+            fullVersion = nAgt.substring(verOffset + 6);
+        } else if (nAgt.indexOf('FxiOS') !== -1) {
+            verOffset = nAgt.indexOf('FxiOS');
+            browserName = 'Firefox';
+            fullVersion = nAgt.substring(verOffset + 6);
+        } else {
+            verOffset = nAgt.indexOf('Safari');
 
-        browserName = 'Safari';
-        fullVersion = nAgt.substring(verOffset + 7);
+            browserName = 'Safari';
+            fullVersion = nAgt.substring(verOffset + 7);
 
-        if ((verOffset = nAgt.indexOf('Version')) !== -1) {
-            fullVersion = nAgt.substring(verOffset + 8);
-        }
+            if ((verOffset = nAgt.indexOf('Version')) !== -1) {
+                fullVersion = nAgt.substring(verOffset + 8);
+            }
 
-        if (navigator.userAgent.indexOf('Version/') !== -1) {
-            fullVersion = navigator.userAgent.split('Version/')[1].split(' ')[0];
+            if (navigator.userAgent.indexOf('Version/') !== -1) {
+                fullVersion = navigator.userAgent.split('Version/')[1].split(' ')[0];
+            }
         }
     }
     // In Firefox, the true version is after 'Firefox' 

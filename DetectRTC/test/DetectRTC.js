@@ -3,7 +3,7 @@ describe('DetectRTC', function() {
         console.log('------------------------------');
         console.log('\x1b[31m%s\x1b[0m ', 'DetectRTC.js');
 
-        browser.driver.get('https://webrtcweb.com/DetectRTC/DetectRTC.html').then(function() {
+        browser.driver.get('https://www.webrtc-experiment.com/DetectRTC/tests/DetectRTC.html').then(function() {
             var booleans = {};
             var failed = {};
 

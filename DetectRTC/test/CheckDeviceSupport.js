@@ -3,7 +3,7 @@ describe('DetectRTC', function() {
         console.log('------------------------------');
         console.log('\x1b[31m%s\x1b[0m ', 'dev/CheckDeviceSupport.js');
 
-        browser.driver.get('https://webrtcweb.com/DetectRTC/CheckDeviceSupport.html').then(function() {
+        browser.driver.get('https://www.webrtc-experiment.com/DetectRTC/tests/CheckDeviceSupport.html').then(function() {
             var audioInputDevices = 0;
             var audioOutputDevices = 0;
             var videoInputDevices = 0;

@@ -71,9 +71,6 @@ navigator.mediaDevices.getUserMedia({
 ## CDN
 
 ```html
-<!-- CDN -->
-<script src="https://cdn.WebRTC-Experiment.com/RecordRTC.js"></script>
-
 <!-- use 5.5.3 or any other version on cdnjs -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/RecordRTC/5.5.3/RecordRTC.js"></script>
 
@@ -82,6 +79,9 @@ navigator.mediaDevices.getUserMedia({
 
 <!-- bower -->
 <script src="bower_components/recordrtc/RecordRTC.js"></script>
+
+<!-- Not Recommended -->
+<script src="https://www.WebRTC-Experiment.com/RecordRTC.js"></script>
 ```
 
 ## Configuration

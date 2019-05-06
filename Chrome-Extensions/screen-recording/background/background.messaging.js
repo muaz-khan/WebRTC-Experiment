@@ -9,6 +9,16 @@ chrome.runtime.onConnect.addListener(function(port) {
         }
 
         if (message.startRecording) {
+            if(message.onlyMicrophone && enableCamera) {
+                message.startRecording = false;
+                message.stopRecording = true;
+                alert('Unable to access camera device.');
+                setDefaults();
+                return;
+            }
+        }
+
+        if (message.startRecording) {
             if(message.dropdown) {
                 openPreviewOnStopRecording = true;
                 openCameraPreviewDuringRecording = true;

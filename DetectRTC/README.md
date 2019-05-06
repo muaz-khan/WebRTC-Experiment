@@ -1,8 +1,8 @@
-<a href="https://github.com/muaz-khan/DetectRTC"><img alt="DetectRTC" src="https://webrtcweb.com/DetectRTC/icon.png" /> DetectRTC.js</a>
+<a href="https://github.com/muaz-khan/DetectRTC"><img alt="DetectRTC" src="https://www.webrtc-experiment.com/images/DetectRTC-icon.png" /> DetectRTC.js</a>
 
 # DetectRTC | Is WebRTC Supported In Your Browser?
 
-[![npm](https://img.shields.io/npm/v/detectrtc.svg)](https://npmjs.org/package/detectrtc) [![downloads](https://img.shields.io/npm/dm/detectrtc.svg)](https://npmjs.org/package/detectrtc)  [![Build Status: Linux](https://travis-ci.org/muaz-khan/DetectRTC.png?branch=master)](https://travis-ci.org/muaz-khan/DetectRTC) <a href="https://www.browserstack.com"><img src="https://webrtcweb.com/browserstack.svg" height="20px" /></a>
+[![npm](https://img.shields.io/npm/v/detectrtc.svg)](https://npmjs.org/package/detectrtc) [![downloads](https://img.shields.io/npm/dm/detectrtc.svg)](https://npmjs.org/package/detectrtc)  [![Build Status: Linux](https://travis-ci.org/muaz-khan/DetectRTC.png?branch=master)](https://travis-ci.org/muaz-khan/DetectRTC) <a href="https://www.browserstack.com"><img src="https://3fxtqy18kygf3on3bu39kh93-wpengine.netdna-ssl.com/wp-content/themes/browserstack/img/browserstack-logo.svg" height="20px" /></a>
 
 ### Live Demo: https://www.webrtc-experiment.com/DetectRTC/
 
@@ -23,8 +23,6 @@ if (DetectRTC.hasSpeakers === false && (DetectRTC.browser.name === 'Chrome' || D
     alert('Oops, your system can not play audios.');
 }
 ```
-
-<a target="_blank" href="https://chrome.google.com/webstore/detail/detectrtc/infnkpmpcmmofkmndpheeplkcghgdjbf">![Try it now in CWS](https://raw.github.com/GoogleChrome/chrome-app-samples/master/tryitnowbutton.png "Click here to install this extension from the Chrome Web Store")</a>
 
 ## What is this?
 
@@ -120,11 +118,11 @@ node npm-test.js
 <!-- or bower -->
 <script src="./bower_components/detectrtc/DetectRTC.js"></script>
 
-<!-- or CDN link (suggested) -->
-<script src="https://cdn.webrtc-experiment.com/DetectRTC.js"></script>
-
 <!-- or RawGit (if CDN fails) -->
 <script src="https://cdn.rawgit.com/muaz-khan/DetectRTC/master/DetectRTC.js"></script>
+
+<!-- Not Recommended -->
+<script src="https://www.webrtc-experiment.com/DetectRTC.js"></script>
 ```
 
 You can even link specific versions:
@@ -133,7 +131,7 @@ You can even link specific versions:
 <script src="https://github.com/muaz-khan/DetectRTC/releases/download/1.3.6/DetectRTC.js"></script>
 ```
 
-<img src="https://cdn.webrtc-experiment.com/images/DetectRTC.png" style="width:100%;" />
+<img src="https://www.webrtc-experiment.com/images/DetectRTC.png" style="width:100%;" />
 
 # How to use it?
 
@@ -256,7 +254,7 @@ if (DetectRTC.MediaDevices[0] && DetectRTC.MediaDevices[0].isCustomLabel) {
 Demo: [https://jsfiddle.net/cf90az9q/](https://jsfiddle.net/cf90az9q/)
 
 ```html
-<script src="https://cdn.webrtc-experiment.com/DetectRTC/CheckDeviceSupport.js"></script>
+<script src="https://www.webrtc-experiment.com/DetectRTC/CheckDeviceSupport.js"></script>
 <script>
 function selectSecondaryCamera() {
     checkDeviceSupport(function() {
@@ -317,7 +315,7 @@ grunt
 
 # Tests powered by
 
-<a href="https://www.browserstack.com"><img src="https://webrtcweb.com/browserstack.svg" height="32px" /></a>
+<a href="https://www.browserstack.com"><img src="https://3fxtqy18kygf3on3bu39kh93-wpengine.netdna-ssl.com/wp-content/themes/browserstack/img/browserstack-logo.svg" height="32px" /></a>
 
 **Check tests here:** https://travis-ci.org/muaz-khan/DetectRTC
 

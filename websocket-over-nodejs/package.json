@@ -1,12 +1,12 @@
 {
   "name": "websocket-over-nodejs",
   "preferGlobal": true,
-  "version": "0.0.7",
+  "version": "0.0.8",
   "author": {
     "name": "Muaz Khan",
     "email": "muazkh@gmail.com"
   },
-  "description": "WebSocket-over-Nodejs: https://webrtcweb.com:9449/",
+  "description": "WebSocket-over-Nodejs",
   "contributors": [
     {
       "name": "Muaz Khan",
