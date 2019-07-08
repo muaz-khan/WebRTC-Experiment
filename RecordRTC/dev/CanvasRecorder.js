@@ -4,8 +4,8 @@
 /**
  * CanvasRecorder is a standalone class used by {@link RecordRTC} to bring HTML5-Canvas recording into video WebM. It uses HTML2Canvas library and runs top over {@link Whammy}.
  * @summary HTML2Canvas recording into video WebM.
- * @license {@link https://github.com/muaz-khan/RecordRTC#license|MIT}
- * @author {@link http://www.MuazKhan.com|Muaz Khan}
+ * @license {@link https://github.com/muaz-khan/RecordRTC/blob/master/LICENSE|MIT}
+ * @author {@link https://MuazKhan.com|Muaz Khan}
  * @typedef CanvasRecorder
  * @class
  * @example
@@ -21,7 +21,7 @@
 
 function CanvasRecorder(htmlElement, config) {
     if (typeof html2canvas === 'undefined') {
-        throw 'Please link: https://cdn.webrtc-experiment.com/screenshot.js';
+        throw 'Please link: https://www.webrtc-experiment.com/screenshot.js';
     }
 
     config = config || {};

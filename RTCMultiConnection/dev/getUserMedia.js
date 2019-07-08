@@ -137,6 +137,31 @@ function getUserMediaHandler(options) {
             };
         }
 
+        if (options.localMediaConstraints.isScreen === true) {
+            if (navigator.mediaDevices.getDisplayMedia) {
+                navigator.mediaDevices.getDisplayMedia(options.localMediaConstraints).then(function(stream) {
+                    stream.streamid = stream.streamid || stream.id || getRandomString();
+                    stream.idInstance = idInstance;
+
+                    streaming(stream);
+                }).catch(function(error) {
+                    options.onLocalMediaError(error, options.localMediaConstraints);
+                });
+            } else if (navigator.getDisplayMedia) {
+                navigator.getDisplayMedia(options.localMediaConstraints).then(function(stream) {
+                    stream.streamid = stream.streamid || stream.id || getRandomString();
+                    stream.idInstance = idInstance;
+
+                    streaming(stream);
+                }).catch(function(error) {
+                    options.onLocalMediaError(error, options.localMediaConstraints);
+                });
+            } else {
+                throw new Error('getDisplayMedia API is not availabe in this browser.');
+            }
+            return;
+        }
+
         navigator.mediaDevices.getUserMedia(options.localMediaConstraints).then(function(stream) {
             stream.streamid = stream.streamid || stream.id || getRandomString();
             stream.idInstance = idInstance;

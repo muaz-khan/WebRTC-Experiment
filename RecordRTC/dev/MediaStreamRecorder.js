@@ -4,7 +4,7 @@
 /**
  * MediaStreamRecorder is an abstraction layer for {@link https://w3c.github.io/mediacapture-record/MediaRecorder.html|MediaRecorder API}. It is used by {@link RecordRTC} to record MediaStream(s) in both Chrome and Firefox.
  * @summary Runs top over {@link https://w3c.github.io/mediacapture-record/MediaRecorder.html|MediaRecorder API}.
- * @license {@link https://github.com/muaz-khan/RecordRTC#license|MIT}
+ * @license {@link https://github.com/muaz-khan/RecordRTC/blob/master/LICENSE|MIT}
  * @author {@link https://github.com/muaz-khan|Muaz Khan}
  * @typedef MediaStreamRecorder
  * @class

@@ -21,7 +21,6 @@
   <script src="/node_modules/canvas-designer/dev/webrtc-handler.js"></script>
   <script src="/node_modules/canvas-designer/canvas-designer-widget.js"></script>
   <script src="/demos/js/emojionearea.min.js"></script>
-  <script src="/node_modules/webrtc-screen-capturing/getScreenId.js"></script>
   <!-- <script src="/node_modules/multistreamsmixer/MultiStreamsMixer.js"></script> -->
 
 <style type="text/css">
@@ -159,12 +158,12 @@ hr {
         <div id="conversation-panel"></div>
         <div id="key-press" style="text-align: right; display: none; font-size: 11px;">
             <span style="vertical-align: middle;"></span>
-            <img src="https://webrtcweb.com/key-press.gif" style="height: 12px; vertical-align: middle;">
+            <img src="https://www.webrtc-experiment.com/images/key-press.gif" style="height: 12px; vertical-align: middle;">
         </div>
         <textarea id="txt-chat-message"></textarea>
         <button class="btn btn-primary" id="btn-chat-message" disabled>Send</button>
-        <img id="btn-attach-file" src="https://webrtcweb.com/attach-file.png" title="Attach a File">
-        <img id="btn-share-screen" src="https://webrtcweb.com/share-screen.png" title="Share Your Screen">
+        <img id="btn-attach-file" src="https://www.webrtc-experiment.com/images/attach-file.png" title="Attach a File">
+        <img id="btn-share-screen" src="https://www.webrtc-experiment.com/images/share-screen.png" title="Share Your Screen">
     </div>
 
     <canvas id="temp-stream-canvas" style="display: none;"></canvas>
@@ -429,7 +428,7 @@ function appendChatMessage(event, checkmark_id) {
             });
         }
     } else {
-        div.innerHTML = '<b>You:</b> <img class="checkmark" id="' + checkmark_id + '" title="Received" src="https://webrtcweb.com/checkmark.png"><br>' + event;
+        div.innerHTML = '<b>You:</b> <img class="checkmark" id="' + checkmark_id + '" title="Received" src="https://www.webrtc-experiment.com/images/checkmark.png"><br>' + event;
         div.style.background = '#cbffcb';
     }
 
@@ -783,27 +782,23 @@ $('#btn-share-screen').click(function() {
 
     $('#btn-share-screen').hide();
 
-    getScreenId(function (error, sourceId, screen_constraints) {
-        if(navigator.userAgent.indexOf('Edge') !== -1 && (!!navigator.msSaveOrOpenBlob || !!navigator.msSaveBlob)) {
-            navigator.getDisplayMedia(screen_constraints).then(stream => {
-                replaceScreenTrack(stream);
-            }, error => {
-                alert('Please make sure to use Edge 17 or higher.');
-            });
-            return;
-        }
-
-        if(error == 'not-installed') {
-          alert('Please install Chrome extension.');
-          return;
-        }
-
-        navigator.mediaDevices.getUserMedia(screen_constraints).then(function (stream) {
+    if(navigator.mediaDevices.getDisplayMedia) {
+        navigator.mediaDevices.getDisplayMedia(screen_constraints).then(stream => {
             replaceScreenTrack(stream);
-        }).catch(function (error) {
-          alert('Failed to capture your screen. Please check Chrome console logs for further information.');
+        }, error => {
+            alert('Please make sure to use Edge 17 or higher.');
         });
-    });
+    }
+    else if(navigator.getDisplayMedia) {
+        navigator.getDisplayMedia(screen_constraints).then(stream => {
+            replaceScreenTrack(stream);
+        }, error => {
+            alert('Please make sure to use Edge 17 or higher.');
+        });
+    }
+    else {
+        alert('getDisplayMedia API is not available in this browser.');
+    }
 });
 </script>
 </body>

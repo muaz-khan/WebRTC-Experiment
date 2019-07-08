@@ -1,7 +1,7 @@
 {
   "name": "rtcmulticonnection",
   "preferGlobal": false,
-  "version": "3.6.8",
+  "version": "3.6.9",
   "author": {
     "name": "Muaz Khan",
     "email": "muazkh@gmail.com",
@@ -56,8 +56,7 @@
     "recordrtc": "latest",
     "rtcmulticonnection-server": "latest",
     "socket.io": "latest",
-    "webrtc-adapter": "latest",
-    "webrtc-screen-capturing": "latest"
+    "webrtc-adapter": "latest"
   },
   "analyze": false,
   "license": "MIT",

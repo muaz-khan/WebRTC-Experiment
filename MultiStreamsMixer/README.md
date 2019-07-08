@@ -19,25 +19,12 @@
 # Link the library
 
 ```html
-<script src="https://cdn.webrtc-experiment.com/MultiStreamsMixer.js"></script>
-
-<!-- or min.js -->
-<script src="https://cdn.webrtc-experiment.com/MultiStreamsMixer.min.js"></script>
-
-<!-- or without CDN -->
 <script src="https://www.webrtc-experiment.com/MultiStreamsMixer.js"></script>
-
-<!-- or rawgit -->
-<script src="https://rawgit.com/muaz-khan/MultiStreamsMixer/master/MultiStreamsMixer.js"></script>
 ```
 
 Or link specific build:
 
 * https://github.com/muaz-khan/MultiStreamsMixer/releases
-
-```html
-<script src="https://github.com/muaz-khan/MultiStreamsMixer/releases/download/1.0.4/MultiStreamsMixer.js"></script>
-```
 
 Or install using NPM:
 
@@ -45,13 +32,20 @@ Or install using NPM:
 npm install multistreamsmixer
 ```
 
+And import/require:
+
+```javascript
+const MultiStreamsMixer = require('multistreamsmixer');
+import MultiStreamsMixer from 'multistreamsmixer';
+```
+
 # How to mix audios?
 
 ```javascript
-var audioMixer = new MultiStreamsMixer([microphone1, microphone2]);
+const audioMixer = new MultiStreamsMixer([microphone1, microphone2]);
 
 // record using MediaRecorder API
-var recorder = new MediaRecorder(audioMixer.getMixedStream());
+const recorder = new MediaRecorder(audioMixer.getMixedStream());
 
 // or share using WebRTC
 rtcPeerConnection.addStream(audioMixer.getMixedStream());
@@ -69,9 +63,9 @@ cameraStream.height = parseInt((20 / 100) * screenStream.height);
 cameraStream.top = screenStream.height - cameraStream.height;
 cameraStream.left = screenStream.width - cameraStream.width;
 
-var mixer = new MultiStreamsMixer([screenStream, cameraStream]);
+const mixer = new MultiStreamsMixer([screenStream, cameraStream]);
 
-rtcPeerConnection.addStream(audioMixer.getMixedStream());
+rtcPeerConnection.addStream(mixer.getMixedStream());
 
 mixer.frameInterval = 1;
 mixer.startDrawingFrames();
@@ -94,9 +88,9 @@ btnStopScreenSharing.onclick = function() {
 # How to mix multiple cameras?
 
 ```javascript
-var mixer = new MultiStreamsMixer([camera1, camera2]);
+const mixer = new MultiStreamsMixer([camera1, camera2]);
 
-rtcPeerConnection.addStream(audioMixer.getMixedStream());
+rtcPeerConnection.addStream(mixer.getMixedStream());
 
 mixer.frameInterval = 1;
 mixer.startDrawingFrames();
@@ -112,14 +106,46 @@ mixer.startDrawingFrames();
 6. `appendStreams`: (function) append extra/new streams (anytime)
 
 # TypeScript / Angular
+
 ```javascript
-import {MultiStreamsMixer} from 'yourPath/MultiStreamsMixer';
-use normally ex:
+import { MultiStreamsMixer } from 'yourPath/MultiStreamsMixer';
 let mixer = new MultiStreamsMixer([stream1,stream2]);
 mixer.appendStreams(stream3);
 let mixed = mixer.getMixedStream();
 ```
-P.S: pollyfills are removed (except for AudioContext) use adapter instead
+
+P.S: pollyfills are removed (except for `AudioContext`) use adapter instead.
+
+# Access `<canvas>` or `<video>` using `querySelector`
+
+```javascript
+var canvas = document.querySelector('canvas.multi-streams-mixer');
+var videos = document.querySelectorAll('video.multi-streams-mixer');
+
+canvas.style.opacity = .1;
+```
+
+# API
+
+```javascript
+// default elementClass is "multi-streams-mixer"
+var instance = new MultiStreamsMixer(arrayOfMediaStreams, elementClass);
+
+MultiStreamsMixer.prototype = {
+	// get readonly MediaStream
+	getMixedStream: function() {},
+
+	// add more streams
+	appendStreams: function(arrayOfMediaStreams) {},
+
+	// replace with set of your own streams
+	resetVideoStreams: function(arrayOfMediaStreams) {},
+
+	// clear all the data
+	clearRecordedData: function() {}
+};
+````
+
 ## License
 
-[MultiStreamsMixer.js](https://github.com/muaz-khan/MultiStreamsMixer) is released under [MIT licence](https://www.webrtc-experiment.com/licence/) . Copyright (c) [Muaz Khan](http://www.MuazKhan.com).
+[MultiStreamsMixer.js](https://github.com/muaz-khan/MultiStreamsMixer) is released under [MIT licence](https://github.com/muaz-khan/MultiStreamsMixer/blob/master/LICENSE) . Copyright (c) [Muaz Khan](https://MuazKhan.com).

@@ -4,13 +4,17 @@
 
 [![npm](https://img.shields.io/npm/v/rtcmulticonnection.svg)](https://npmjs.org/package/rtcmulticonnection) [![downloads](https://img.shields.io/npm/dm/rtcmulticonnection.svg)](https://npmjs.org/package/rtcmulticonnection) [![Build Status: Linux](https://travis-ci.org/muaz-khan/RTCMultiConnection.png?branch=master)](https://travis-ci.org/muaz-khan/RTCMultiConnection)
 
-> Demos may not work without a TURN-server. So please set your own TURN-servers using `connetion.iceServers` array.
+> RTCMultiConnection is a WebRTC JavaScript library for peer-to-peer applications (screen sharing, audio/video conferencing, file sharing, media streaming etc.)
 
 ## Socket.io Signaling Server
 
 Signaling server has a separate repository:
 
 * https://github.com/muaz-khan/RTCMultiConnection-Server
+
+## Demos
+
+* https://rtcmulticonnection.herokuapp.com/
 
 ## Getting Started Without Any Installation
 
@@ -62,12 +66,6 @@ RTCMultiConnection is using `Grunt` to compile javascript into `dist` directory:
 
 1. https://github.com/muaz-khan/RTCMultiConnection/wiki
 2. https://github.com/muaz-khan/RTCMultiConnection-Server/wiki
-
-## Disclaimer
-
-There is no warranty, expressed or implied, associated with this product. Use at your own risk.
-
-* [https://www.webrtc-experiment.com/disclaimer/](https://www.webrtc-experiment.com/disclaimer/)
 
 ## License
 

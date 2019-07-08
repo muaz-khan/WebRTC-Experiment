@@ -319,12 +319,6 @@ grunt
 
 **Check tests here:** https://travis-ci.org/muaz-khan/DetectRTC
 
-# Disclaimer
-
-There is no warranty, expressed or implied, associated with this product. Use at your own risk.
-
-* https://www.webrtc-experiment.com/disclaimer/
-
 # License
 
 [DetectRTC.js](https://github.com/muaz-khan/DetectRTC) is released under [MIT licence](https://www.webrtc-experiment.com/licence/) . Copyright (c) [Muaz Khan](http://www.MuazKhan.com/).

@@ -4,8 +4,8 @@
 /**
  * MRecordRTC runs on top of {@link RecordRTC} to bring multiple recordings in a single place, by providing simple API.
  * @summary MRecordRTC stands for "Multiple-RecordRTC".
- * @license {@link https://github.com/muaz-khan/RecordRTC#license|MIT}
- * @author {@link http://www.MuazKhan.com|Muaz Khan}
+ * @license {@link https://github.com/muaz-khan/RecordRTC/blob/master/LICENSE|MIT}
+ * @author {@link https://MuazKhan.com|Muaz Khan}
  * @typedef MRecordRTC
  * @class
  * @example

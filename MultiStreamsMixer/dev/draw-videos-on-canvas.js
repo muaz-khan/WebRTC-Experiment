@@ -15,6 +15,7 @@ function drawVideosToCanvas() {
         if (video.stream.fullcanvas) {
             fullcanvas = video;
         } else {
+            // todo: video.stream.active or video.stream.live to fix blank frames issues?
             remaining.push(video);
         }
     });

@@ -1,5 +1,3 @@
-<!-- Demo version: 2018.10.06 -->
-
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
 <head>
@@ -13,22 +11,22 @@
 <body>
   <header>
     <a class="logo" href="/"><img src="/demos/logo.png" alt="RTCMultiConnection"></a>
-    <a href="/demos/" class="menu-explorer">Menu<img src="/demos/menu-icon.png" alt="Menu"></a>
+    <a href="/" class="menu-explorer">Menu<img src="/demos/menu-icon.png" alt="Menu"></a>
     <nav>
       <li>
-        <a href="/demos/">Home</a>
+        <a href="/">Home</a>
       </li>
       <li>
-        <a href="http://www.rtcmulticonnection.org/docs/getting-started/">Getting Started</a>
+        <a href="/demos/">Demos</a>
       </li>
       <li>
-        <a href="http://www.rtcmulticonnection.org/FAQ/">FAQ</a>
+        <a href="https://www.rtcmulticonnection.org/docs/getting-started/">Getting Started</a>
+      </li>
+      <li>
+        <a href="https://www.rtcmulticonnection.org/FAQ/">FAQ</a>
       </li>
       <li>
         <a href="https://www.youtube.com/playlist?list=PLPRQUXAnRydKdyun-vjKPMrySoow2N4tl">YouTube</a>
-      </li>
-      <li>
-        <a href="https://github.com/muaz-khan/RTCMultiConnection#v3-demos">Demos</a>
       </li>
       <li>
         <a href="https://github.com/muaz-khan/RTCMultiConnection/wiki">Wiki</a>
@@ -110,6 +108,17 @@ connection.sdpConstraints.mandatory = {
     OfferToReceiveAudio: true,
     OfferToReceiveVideo: true
 };
+
+// https://www.rtcmulticonnection.org/docs/iceServers/
+// use your own TURN-server here!
+connection.iceServers = [{
+    'urls': [
+        'stun:stun.l.google.com:19302',
+        'stun:stun1.l.google.com:19302',
+        'stun:stun2.l.google.com:19302',
+        'stun:stun.l.google.com:19302?transport=udp',
+    ]
+}];
 
 connection.videosContainer = document.getElementById('videos-container');
 connection.onstream = function(event) {
@@ -204,6 +213,6 @@ if (roomid && roomid.length) {
     <small id="send-message"></small>
   </footer>
 
-  <script src="https://cdn.webrtc-experiment.com/common.js"></script>
+  <script src="https://www.webrtc-experiment.com/common.js"></script>
 </body>
 </html>

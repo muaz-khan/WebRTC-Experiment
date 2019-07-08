@@ -1,16 +1,14 @@
-<!-- Demo version: 2017.08.06 -->
-
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta charset="utf-8">
-    <link rel="stylesheet" href="https://cdn.webrtc-experiment.com/style.css">
+    <link rel="stylesheet" href="https://www.webrtc-experiment.com/style.css">
 
-    <title>WebSocket Video Conferencing Demo using RTCMultiConnection</title>
+    <title>TextChat+FileSharing using RTCMultiConnection</title>
 
-    <meta name="description" content="Use WebSocket as a signaling medium with RTCMultiConnection" />
+    <meta name="description" content="Many-to-Many TextChat and FileSharing using RTCMultiConnection" />
     <meta name="keywords" content="WebRTC,RTCMultiConnection,Demos,Experiments,Samples,Examples" />
 
     <style>
@@ -29,6 +27,7 @@
             font-size: 16px;
             outline: none;
         }
+
         .make-center {
             text-align: center;
             padding: 5px 10px;
@@ -40,9 +39,9 @@
     <article>
 
         <header style="text-align: center;">
-            <h1>WebSocket Video Conferencing Demo using RTCMultiConnection</h1>
+            <h1>TextChat+FileSharing using RTCMultiConnection</h1>
             <p>
-                <a href="https://rtcmulticonnection.herokuapp.com/">HOME</a>
+                <a href="/">HOME</a>
                 <span> &copy; </span>
                 <a href="http://www.MuazKhan.com/" target="_blank">Muaz Khan</a> .
                 <a href="http://twitter.com/WebRTCWeb" target="_blank" title="Twitter profile for WebRTC Experiments">@WebRTCWeb</a> .
@@ -52,6 +51,7 @@
             </p>
         </header>
 
+
         <div class="github-stargazers"></div>
 
         <section class="experiment">
@@ -59,6 +59,7 @@
                 <input type="text" id="room-id" value="abcdef">
                 <button id="open-room">Open Room</button>
                 <button id="join-room">Join Room</button>
+                <button id="open-or-join-room">Auto Open Or Join Room</button>
 
                 <br><br>
                 <input type="text" id="input-text-chat" placeholder="Enter Text Chat" disabled>
@@ -71,15 +72,13 @@
                 <div id="file-container"></div>
                 <div class="chat-output"></div>
             </div>
-
-            <div id="videos-container"></div>
         </section>
 
         <script src="/dist/RTCMultiConnection.min.js"></script>
         <script src="/node_modules/webrtc-adapter/out/adapter.js"></script>
-        <script src="/dev/WebSocketConnection.js"></script>
+        <script src="/socket.io/socket.io.js"></script>
+
         <script src="/node_modules/fbr/FileBufferReader.js"></script>
-        <script src="https://cdn.webrtc-experiment.com/view/websocket.js"></script>
 
         <script>
             // ......................................................
@@ -96,6 +95,15 @@
             document.getElementById('join-room').onclick = function() {
                 disableInputButtons();
                 connection.join(document.getElementById('room-id').value);
+            };
+
+            document.getElementById('open-or-join-room').onclick = function() {
+                disableInputButtons();
+                connection.openOrJoin(document.getElementById('room-id').value, function(isRoomExists, roomid) {
+                    if(!isRoomExists) {
+                        showRoomURL(roomid);
+                    }
+                });
             };
 
             // ......................................................
@@ -139,31 +147,35 @@
 
             var connection = new RTCMultiConnection();
 
-            connection.socketMessageEvent = 'websocket-demo';
+            // by default, socket.io server is assumed to be deployed on your own URL
+            connection.socketURL = '/';
 
-            connection.setCustomSocketHandler(WebSocketConnection);
+            // comment-out below line if you do not have your own socket.io server
+            // connection.socketURL = 'https://rtcmulticonnection.herokuapp.com:443/';
+
+            connection.socketMessageEvent = 'textchat-plus-fileshare-demo';
 
             connection.enableFileSharing = true; // by default, it is "false".
 
             connection.session = {
-                audio: true,
-                video: true,
                 data: true
             };
 
             connection.sdpConstraints.mandatory = {
-                OfferToReceiveAudio: true,
-                OfferToReceiveVideo: true
+                OfferToReceiveAudio: false,
+                OfferToReceiveVideo: false
             };
 
-            connection.videosContainer = document.getElementById('videos-container');
-            connection.onstream = function(event) {
-                connection.videosContainer.appendChild(event.mediaElement);
-                event.mediaElement.play();
-                setTimeout(function() {
-                    event.mediaElement.play();
-                }, 5000);
-            };
+            // https://www.rtcmulticonnection.org/docs/iceServers/
+            // use your own TURN-server here!
+            connection.iceServers = [{
+                'urls': [
+                    'stun:stun.l.google.com:19302',
+                    'stun:stun1.l.google.com:19302',
+                    'stun:stun2.l.google.com:19302',
+                    'stun:stun.l.google.com:19302?transport=udp',
+                ]
+            }];
 
             connection.onmessage = appendDIV;
             connection.filesContainer = document.getElementById('file-container');
@@ -174,8 +186,7 @@
             };
 
             function disableInputButtons() {
-                connection.channel = document.getElementById('room-id').value;
-
+                document.getElementById('open-or-join-room').disabled = true;
                 document.getElementById('open-room').disabled = true;
                 document.getElementById('join-room').disabled = true;
                 document.getElementById('room-id').disabled = true;
@@ -239,10 +250,19 @@
                 document.getElementById('room-id').value = roomid;
                 localStorage.setItem(connection.socketMessageEvent, roomid);
 
-                disableInputButtons();
-
                 // auto-join-room
-                connection.join(roomid);
+                (function reCheckRoomPresence() {
+                    connection.checkPresence(roomid, function(isRoomExists) {
+                        if(isRoomExists) {
+                            connection.join(roomid);
+                            return;
+                        }
+
+                        setTimeout(reCheckRoomPresence, 5000);
+                    });
+                })();
+
+                disableInputButtons();
             }
         </script>
 
@@ -269,7 +289,7 @@
         <script>
             window.useThisGithubPath = 'muaz-khan/RTCMultiConnection';
         </script>
-        <script src="https://cdn.webrtc-experiment.com/commits.js" async></script>
+        <script src="https://www.webrtc-experiment.com/commits.js" async></script>
 
     </article>
 

@@ -1,26 +1,17 @@
-<!-- Demo version: 2017.08.06 -->
-
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta charset="utf-8">
-    <meta name="format-detection" content="telephone=no">
-    <meta name="msapplication-tap-highlight" content="no">
-    <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width">
+    <link rel="stylesheet" href="https://www.webrtc-experiment.com/style.css">
 
-    <link rel="stylesheet" href="https://cdn.webrtc-experiment.com/style.css">
+    <title>TextChat Translation using RTCMultiConnection</title>
 
-    <title>Audio+Video+Screen Sharing using RTCMultiConnection</title>
-
-    <meta name="description" content="Audio+Video+Screen Sharing using RTCMultiConnection" />
+    <meta name="description" content="Many-to-Many TextChat Translation using RTCMultiConnection" />
     <meta name="keywords" content="WebRTC,RTCMultiConnection,Demos,Experiments,Samples,Examples" />
 
     <style>
-        * {
-            word-wrap:break-word;
-        }
         video {
             object-fit: fill;
             width: 30%;
@@ -42,14 +33,9 @@
             padding: 5px 10px;
         }
 
-        img, input, textarea {
-          max-width: 100%
-        }
-
-        @media all and (max-width: 500px) {
-            .fork-left, .fork-right, .github-stargazers {
-                display: none;
-            }
+        select {
+            height: 25px;
+            vertical-align: middle;
         }
     </style>
 </head>
@@ -58,9 +44,9 @@
     <article>
 
         <header style="text-align: center;">
-            <h1>Audio+Video+Screen Sharing using RTCMultiConnection</h1>
+            <h1>TextChat Translation using RTCMultiConnection</h1>
             <p>
-                <a href="https://rtcmulticonnection.herokuapp.com/">HOME</a>
+                <a href="/">HOME</a>
                 <span> &copy; </span>
                 <a href="http://www.MuazKhan.com/" target="_blank">Muaz Khan</a> .
                 <a href="http://twitter.com/WebRTCWeb" target="_blank" title="Twitter profile for WebRTC Experiments">@WebRTCWeb</a> .
@@ -70,52 +56,81 @@
             </p>
         </header>
 
+
         <div class="github-stargazers"></div>
 
         <section class="experiment">
             <div class="make-center">
-                <input type="text" id="room-id" value="abcdef" autocorrect=off autocapitalize=off size=20>
+                <input type="text" id="room-id" value="abcdef">
                 <button id="open-room">Open Room</button>
                 <button id="join-room">Join Room</button>
                 <button id="open-or-join-room">Auto Open Or Join Room</button>
-                
-                <hr>
-                    <button id="share-screen" disabled>Share Screen</button>
-                <hr>
+
+                <br><br>
+                <input type="text" id="input-text-chat" placeholder="Enter Text Chat" disabled>
+
+                <select id="select-your-langauge">
+                                        <option>en (English)</option>
+                                        <option>ar (العربية)</option>
+                                        <option>de (Deutsch)</option>
+                                        <option>fr (Français)</option>
+                                        <option>hi (हिंदी)</option>
+                                        <option>pt (Português)</option>
+                                        <option>ru (Русский)</option>
+                                        <option>es (Español)</option>
+                                        <option>tr (Türk)</option>
+                                        <option>nl (Nederlands)</option>
+                                        <option>it (Italiano)</option>
+                                        <option>pl (Polski)</option>
+                                        <option>ro (Român)</option>
+                                        <option>sv (Svensk)</option>
+                                        <option>vi (Việt)</option>
+                                        <option>th (ภาษาไทย)</option>
+                                        <option>zh-CN (中文简体)</option>
+                                        <option>zh-TW (中國傳統)</option>
+                                        <option>ko (한국의)</option>
+                                        <option>ja (日本人)</option>
+                                        <option>el (ελληνικά)</option>
+                                        <option>ts (தமிழ்)</option>
+                                        <option>hy (հայերեն)</option>
+                                        <option>bs (Bosanski)</option>
+                                        <option>ca (Català)</option>
+                                        <option>hr (Hrvatski)</option>
+                                        <option>dq (Dansk)</option>
+                                        <option>eo (Esperanto)</option>
+                                        <option>fi (Suomalainen)</option>
+                                        <option>ht (Haian kreyòl)</option>
+                                        <option>hu (Magyar)</option>
+                                        <option>is (Icelandic)</option>
+                                        <option>id (Indonesia)</option>
+                                        <option>la (Latinum)</option>
+                                        <option>lv (Latvijas)</option>
+                                        <option>mk (Македонски)</option>
+                                        <option>no (Norsk)</option>
+                                        <option>sr (Српски)</option>
+                                        <option>sk (Slovenský)</option>
+                                        <option>sw (Kiswahili)</option>
+                                        <option>cy (Cymraeg)</option>
+                                    </select>
 
                 <div id="room-urls" style="text-align: center;display: none;background: #F1EDED;margin: 15px -10px;border: 1px solid rgb(189, 189, 189);border-left: 0;border-right: 0;"></div>
             </div>
 
-            <div id="videos-container"></div>
+            <div id="chat-container">
+                <div class="chat-output"></div>
+            </div>
         </section>
 
-        <blockquote>
-            You can share audio+video as well as screen.
-        </blockquote>
-
         <script src="/dist/RTCMultiConnection.min.js"></script>
-
-        <!-- custom layout for HTML5 audio/video elements -->
-        <script src="https://cdn.webrtc-experiment.com/getMediaElement.js"></script>
-
-        <!-- socket.io for signaling -->
+        <script src="/node_modules/webrtc-adapter/out/adapter.js"></script>
         <script src="/socket.io/socket.io.js"></script>
-        
-        <!-- capture screen from any HTTPs domain! -->
-        <script src="/node_modules/webrtc-screen-capturing/getScreenId.js"></script>
+
+        <script src="/node_modules/fbr/FileBufferReader.js"></script>
 
         <script>
             // ......................................................
             // .......................UI Code........................
             // ......................................................
-            
-            document.getElementById('share-screen').onclick = function() {
-                this.disabled = true;
-                connection.addStream({
-                    screen: true,
-                    oneway: true
-                });
-            };
 
             document.getElementById('open-room').onclick = function() {
                 disableInputButtons();
@@ -139,23 +154,47 @@
             };
 
             // ......................................................
+            // .....................TextChat Code....................
+            // ......................................................
+
+            document.getElementById('input-text-chat').onkeyup = function(e) {
+                if (e.keyCode != 13) return;
+
+                // removing trailing/leading whitespace
+                this.value = this.value.replace(/^\s+|\s+$/g, '');
+                if (!this.value.length) return;
+
+                connection.send(this.value);
+                appendDIV(this.value);
+                this.value = '';
+            };
+
+            var chatContainer = document.querySelector('.chat-output');
+
+            function appendDIV(event) {
+                console.log('appendDIV', event);
+
+                if(event.data) {
+                    connection.Translator.TranslateText(event.data, function(convertedText) {
+                         appendDIV(convertedText);
+                    });
+                    return;
+                }
+
+                var div = document.createElement('div');
+                div.innerHTML = event.data || event;
+                chatContainer.insertBefore(div, chatContainer.firstChild);
+                div.tabIndex = 0;
+                div.focus();
+
+                document.getElementById('input-text-chat').focus();
+            }
+
+            // ......................................................
             // ..................RTCMultiConnection Code.............
             // ......................................................
 
             var connection = new RTCMultiConnection();
-            
-            // Using getScreenId.js to capture screen from any domain
-            // You do NOT need to deploy Chrome Extension YOUR-Self!!
-            connection.getScreenConstraints = function(callback) {
-                getScreenConstraints(function(error, screen_constraints) {
-                    if (!error) {
-                        screen_constraints = connection.modifyScreenConstraints(screen_constraints);
-                        callback(error, screen_constraints);
-                        return;
-                    }
-                    throw error;
-                });
-            };
 
             // by default, socket.io server is assumed to be deployed on your own URL
             connection.socketURL = '/';
@@ -163,52 +202,32 @@
             // comment-out below line if you do not have your own socket.io server
             // connection.socketURL = 'https://rtcmulticonnection.herokuapp.com:443/';
 
-            connection.socketMessageEvent = 'audio-video-screen-demo';
+            connection.socketMessageEvent = 'textchat-translation-demo';
 
             connection.session = {
-                audio: true,
-                video: true
+                data: true
             };
 
             connection.sdpConstraints.mandatory = {
-                OfferToReceiveAudio: true,
-                OfferToReceiveVideo: true
+                OfferToReceiveAudio: false,
+                OfferToReceiveVideo: false
             };
 
-            connection.videosContainer = document.getElementById('videos-container');
-            connection.onstream = function(event) {
-                if(document.getElementById(event.streamid)) {
-                    var existing = document.getElementById(event.streamid);
-                    existing.parentNode.removeChild(existing);
-                }
-                
-                var width = parseInt(connection.videosContainer.clientWidth / 2) - 20;
-                
-                if(event.stream.isScreen === true) {
-                    width = connection.videosContainer.clientWidth - 20;
-                }
-                
-                var mediaElement = getMediaElement(event.mediaElement, {
-                    title: event.userid,
-                    buttons: ['full-screen'],
-                    width: width,
-                    showOnMouseEnter: false
-                });
+            // https://www.rtcmulticonnection.org/docs/iceServers/
+            // use your own TURN-server here!
+            connection.iceServers = [{
+                'urls': [
+                    'stun:stun.l.google.com:19302',
+                    'stun:stun1.l.google.com:19302',
+                    'stun:stun2.l.google.com:19302',
+                    'stun:stun.l.google.com:19302?transport=udp',
+                ]
+            }];
 
-                connection.videosContainer.appendChild(mediaElement);
+            connection.onmessage = appendDIV;
 
-                setTimeout(function() {
-                    mediaElement.media.play();
-                }, 5000);
-
-                mediaElement.id = event.streamid;
-            };
-
-            connection.onstreamended = function(event) {
-                var mediaElement = document.getElementById(event.streamid);
-                if(mediaElement) {
-                    mediaElement.parentNode.removeChild(mediaElement);
-                }
+            connection.onopen = function() {
+                document.getElementById('input-text-chat').disabled = false;
             };
 
             function disableInputButtons() {
@@ -216,7 +235,6 @@
                 document.getElementById('open-room').disabled = true;
                 document.getElementById('join-room').disabled = true;
                 document.getElementById('room-id').disabled = true;
-                document.getElementById('share-screen').disabled = false;
             }
 
             // ......................................................
@@ -291,6 +309,25 @@
 
                 disableInputButtons();
             }
+
+            // Translation Handler
+            connection.googKey = 'AIzaSyCgB5hmFY74WYB-EoWkhr9cAGr6TiTHrEE';
+            connection.autoTranslateText = false;
+            
+            var selectYourLanguage = document.getElementById('select-your-langauge');
+            connection.language = selectYourLanguage.value.split(' (')[0];
+            selectYourLanguage.onchange = function() {
+                connection.language = this.value.split(' (')[0];
+            };
+
+            connection.Translator.getListOfLanguages(function(languages) {
+                selectYourLanguage.innerHTML = '';
+                languages.forEach(function(language) {
+                    var option = document.createElement('option');
+                    option.innerHTMl = language.language;
+                    selectYourLanguage.appendChild(option);
+                });
+            });
         </script>
 
         <section class="experiment own-widgets latest-commits">
@@ -316,7 +353,7 @@
         <script>
             window.useThisGithubPath = 'muaz-khan/RTCMultiConnection';
         </script>
-        <script src="https://cdn.webrtc-experiment.com/commits.js" async></script>
+        <script src="https://www.webrtc-experiment.com/commits.js" async></script>
 
     </article>
 

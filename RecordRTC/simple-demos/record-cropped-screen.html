@@ -31,9 +31,7 @@
 
 <video id="mediaElement" autoplay playsinline></video>
 
-<script src="https://www.webrtc-experiment.com/RecordRTC.js"></script>
-<script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
-<script src="https://www.webrtc-experiment.com/getScreenId.js"></script>
+<script src="/RecordRTC.js"></script>
 <script>
 // this script tag is taken from: https://github.com/andersevenrud/webrtc-screenshare-crop-demo
 var CROP_X = 10;
@@ -140,11 +138,7 @@ function getScreenStream(callback) {
             callback(screenStream);
         });
     } else {
-        getScreenId(function(error, sourceId, screen_constraints) {
-            navigator.mediaDevices.getUserMedia(screen_constraints).then(function(screenStream) {
-                callback(screenStream);
-            });
-        });
+        alert('getDisplayMedia API is not supported by this browser.');
     }
 }
 

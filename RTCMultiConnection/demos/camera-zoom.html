@@ -1,12 +1,10 @@
-<!-- Demo version: 2018.09.20 -->
-
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta charset="utf-8">
-    <link rel="stylesheet" href="https://cdn.webrtc-experiment.com/style.css">
+    <link rel="stylesheet" href="https://www.webrtc-experiment.com/style.css">
 
     <title>Zoom Camera during WebRTC Live Streaming | RTCMultiConnection</title>
 
@@ -43,7 +41,7 @@
         <header style="text-align: center;">
             <h1>Zoom Camera during WebRTC Live Streaming | RTCMultiConnection</h1>
             <p>
-                <a href="https://rtcmulticonnection.herokuapp.com/">HOME</a>
+                <a href="/">HOME</a>
                 <span> &copy; </span>
                 <a href="http://www.MuazKhan.com/" target="_blank">Muaz Khan</a> .
                 <a href="http://twitter.com/WebRTCWeb" target="_blank" title="Twitter profile for WebRTC Experiments">@WebRTCWeb</a> .
@@ -121,6 +119,17 @@
                 OfferToReceiveAudio: true,
                 OfferToReceiveVideo: true
             };
+
+            // https://www.rtcmulticonnection.org/docs/iceServers/
+            // use your own TURN-server here!
+            connection.iceServers = [{
+                'urls': [
+                    'stun:stun.l.google.com:19302',
+                    'stun:stun1.l.google.com:19302',
+                    'stun:stun2.l.google.com:19302',
+                    'stun:stun.l.google.com:19302?transport=udp',
+                ]
+            }];
 
             connection.videosContainer = document.getElementById('videos-container');
             connection.onstream = function(event) {
@@ -306,7 +315,7 @@
         <script>
             window.useThisGithubPath = 'muaz-khan/RTCMultiConnection';
         </script>
-        <script src="https://cdn.webrtc-experiment.com/commits.js" async></script>
+        <script src="https://www.webrtc-experiment.com/commits.js" async></script>
 
     </article>
 

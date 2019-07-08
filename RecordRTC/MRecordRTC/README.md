@@ -14,7 +14,7 @@ This [WebRTC](https://www.webrtc-experiment.com/) experiment is using [RecordRTC
 =
 
 ```html
-<script src="https://cdn.WebRTC-Experiment.com/RecordRTC.js"></script>
+<script src="https://www.WebRTC-Experiment.com/RecordRTC.js"></script>
 <script>
 var recorder = new MRecordRTC();
 recorder.addStream(MediaStream);

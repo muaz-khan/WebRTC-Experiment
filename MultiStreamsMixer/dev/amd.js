@@ -1,6 +1,10 @@
 var browserFakeUserAgent = 'Fake/5.0 (FakeOS) AppleWebKit/123 (KHTML, like Gecko) Fake/12.3.4567.89 Fake/123.45';
 
 (function(that) {
+    if (typeof RecordRTC !== 'undefined') {
+        return;
+    }
+
     if (!that) {
         return;
     }

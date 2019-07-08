@@ -18,5 +18,9 @@ function getMixedStream() {
         }
     });
 
+    // mixedVideoStream.prototype.appendStreams = appendStreams;
+    // mixedVideoStream.prototype.resetVideoStreams = resetVideoStreams;
+    // mixedVideoStream.prototype.clearRecordedData = clearRecordedData;
+
     return mixedVideoStream;
 }

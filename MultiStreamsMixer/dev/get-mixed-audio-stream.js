@@ -33,10 +33,6 @@ function getMixedAudioStream() {
         self.audioSources.push(audioSource);
     });
 
-    if (!audioTracksLength) {
-        return;
-    }
-
     self.audioDestination = self.audioContext.createMediaStreamDestination();
     self.audioSources.forEach(function(audioSource) {
         audioSource.connect(self.audioDestination);

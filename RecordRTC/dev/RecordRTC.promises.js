@@ -4,8 +4,8 @@
 /**
  * RecordRTCPromisesHandler adds promises support in {@link RecordRTC}. Try a {@link https://github.com/muaz-khan/RecordRTC/blob/master/simple-demos/RecordRTCPromisesHandler.html|demo here}
  * @summary Promises for {@link RecordRTC}
- * @license {@link https://github.com/muaz-khan/RecordRTC#license|MIT}
- * @author {@link http://www.MuazKhan.com|Muaz Khan}
+ * @license {@link https://github.com/muaz-khan/RecordRTC/blob/master/LICENSE|MIT}
+ * @author {@link https://MuazKhan.com|Muaz Khan}
  * @typedef RecordRTCPromisesHandler
  * @class
  * @example
@@ -13,6 +13,9 @@
  * recorder.startRecording()
  *         .then(successCB)
  *         .catch(errorCB);
+ * // Note: You can access all RecordRTC API using "recorder.recordRTC" e.g. 
+ * recorder.recordRTC.onStateChanged = function(state) {};
+ * recorder.recordRTC.setRecordingDuration(5000);
  * @see {@link https://github.com/muaz-khan/RecordRTC|RecordRTC Source Code}
  * @param {MediaStream} mediaStream - Single media-stream object, array of media-streams, html-canvas-element, etc.
  * @param {object} config - {type:"video", recorderType: MediaStreamRecorder, disableLogs: true, numberOfAudioChannels: 1, bufferSize: 0, sampleRate: 0, video: HTMLVideoElement, etc.}
@@ -35,8 +38,9 @@ function RecordRTCPromisesHandler(mediaStream, options) {
      * @property {Blob} blob - Access/reach the native {@link RecordRTC} object.
      * @memberof RecordRTCPromisesHandler
      * @example
-     * var internal = recorder.recordRTC.getInternalRecorder();
+     * let internal = recorder.recordRTC.getInternalRecorder();
      * alert(internal instanceof MediaStreamRecorder);
+     * recorder.recordRTC.onStateChanged = function(state) {};
      */
     self.recordRTC = new RecordRTC(mediaStream, options);
 
@@ -89,6 +93,46 @@ function RecordRTCPromisesHandler(mediaStream, options) {
     };
 
     /**
+     * This method pauses the recording. You can resume recording using "resumeRecording" method.
+     * @method
+     * @memberof RecordRTCPromisesHandler
+     * @example
+     * recorder.pauseRecording()
+     *         .then(successCB)
+     *         .catch(errorCB);
+     */
+    this.pauseRecording = function() {
+        return new Promise(function(resolve, reject) {
+            try {
+                self.recordRTC.pauseRecording();
+                resolve();
+            } catch (e) {
+                reject(e);
+            }
+        });
+    };
+
+    /**
+     * This method resumes the recording.
+     * @method
+     * @memberof RecordRTCPromisesHandler
+     * @example
+     * recorder.resumeRecording()
+     *         .then(successCB)
+     *         .catch(errorCB);
+     */
+    this.resumeRecording = function() {
+        return new Promise(function(resolve, reject) {
+            try {
+                self.recordRTC.resumeRecording();
+                resolve();
+            } catch (e) {
+                reject(e);
+            }
+        });
+    };
+
+    /**
      * This method returns data-url for the recorded blob.
      * @method
      * @memberof RecordRTCPromisesHandler
@@ -131,14 +175,102 @@ function RecordRTCPromisesHandler(mediaStream, options) {
     };
 
     /**
+     * Destroy RecordRTC instance. Clear all recorders and objects.
+     * @method
+     * @memberof RecordRTCPromisesHandler
+     * @example
+     * let internalRecorder = await recorder.getInternalRecorder();
+     * if(internalRecorder instanceof MultiStreamRecorder) {
+     *     internalRecorder.addStreams([newAudioStream]);
+     *     internalRecorder.resetVideoStreams([screenStream]);
+     * }
+     * @returns {Object} Returns internal recording object.
+     */
+    this.getInternalRecorder = function() {
+        return new Promise(function(resolve, reject) {
+            try {
+                resolve(self.recordRTC.getInternalRecorder());
+            } catch (e) {
+                reject(e);
+            }
+        });
+    };
+
+    /**
+     * This method resets the recorder. So that you can reuse single recorder instance many times.
+     * @method
+     * @memberof RecordRTCPromisesHandler
+     * @example
+     * await recorder.reset();
+     * recorder.startRecording(); // record again
+     */
+    this.reset = function() {
+        return new Promise(function(resolve, reject) {
+            try {
+                resolve(self.recordRTC.reset());
+            } catch (e) {
+                reject(e);
+            }
+        });
+    };
+
+    /**
+     * Destroy RecordRTC instance. Clear all recorders and objects.
+     * @method
+     * @memberof RecordRTCPromisesHandler
+     * @example
+     * recorder.destroy().then(successCB).catch(errorCB);
+     */
+    this.destroy = function() {
+        return new Promise(function(resolve, reject) {
+            try {
+                resolve(self.recordRTC.destroy());
+            } catch (e) {
+                reject(e);
+            }
+        });
+    };
+
+    /**
+     * Get recorder's readonly state.
+     * @method
+     * @memberof RecordRTCPromisesHandler
+     * @example
+     * let state = await recorder.getState();
+     * // or
+     * recorder.getState().then(state => { console.log(state); })
+     * @returns {String} Returns recording state.
+     */
+    this.getState = function() {
+        return new Promise(function(resolve, reject) {
+            try {
+                resolve(self.recordRTC.getState());
+            } catch (e) {
+                reject(e);
+            }
+        });
+    };
+
+    /**
      * @property {Blob} blob - Recorded data as "Blob" object.
      * @memberof RecordRTCPromisesHandler
      * @example
-     * recorder.stopRecording().then(function() {
-     *     var blob = recorder.getBlob();
-     * }).catch(errorCB);
+     * await recorder.stopRecording();
+     * let blob = recorder.getBlob(); // or "recorder.recordRTC.blob"
+     * invokeSaveAsDialog(blob);
      */
     this.blob = null;
+
+    /**
+     * RecordRTC version number
+     * @property {String} version - Release version number.
+     * @memberof RecordRTCPromisesHandler
+     * @static
+     * @readonly
+     * @example
+     * alert(recorder.version);
+     */
+    this.version = '@@version';
 }
 
 if (typeof RecordRTC !== 'undefined') {

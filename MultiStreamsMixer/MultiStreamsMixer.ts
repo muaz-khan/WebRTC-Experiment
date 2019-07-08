@@ -12,6 +12,7 @@ export class MultiStreamsMixer {
   height: number;
   useGainNode : boolean;
   arrayOfMediaStreams: Array<MediaStream>;
+  elementClass: string;
   /********************************************/
   audioContext : any;
   audioDestination : any;
@@ -19,15 +20,17 @@ export class MultiStreamsMixer {
   gainNode : GainNode;
 
 
-  constructor (_arrayOfMediaStreams) {
+  constructor (_arrayOfMediaStreams, elementClass = 'multi-streams-mixer') {
     // requires: chrome://flags/#enable-experimental-web-platform-features
     this.arrayOfMediaStreams = _arrayOfMediaStreams;
+    this.elementClass = elementClass;
     this.videos = new Array<any>();
     this.isStopDrawingFrames = false;
     this.canvas = document.createElement('canvas');
     this.context = this.canvas.getContext('2d');
-    // this.canvas.style = 'opacity:0;position:absolute;z-index:-1;top: -100000000;left:-1000000000; margin-top:-1000000000;margin-left:-1000000000;';
-    // (document.body || document.documentElement).appendChild(canvas);
+    this.canvas.style = 'opacity:0;position:absolute;z-index:-1;top: -100000000;left:-1000000000; margin-top:-1000000000;margin-left:-1000000000;';
+    this.canvas.className = this.elementClass;
+    (document.body || document.documentElement).appendChild(canvas);
     this.disableLogs = false;
     this.frameInterval = 10;
     this.width = 360;
@@ -259,6 +262,7 @@ export class MultiStreamsMixer {
   private getVideo(stream) {
     var video = document.createElement('video');
     this.setSrcObject(stream, video);
+    video.className = this.elementClass;
     video.muted = true;
     video.volume = 0;
     video.width = stream.width || this.width || 360;

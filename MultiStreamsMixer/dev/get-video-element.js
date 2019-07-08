@@ -3,6 +3,8 @@ function getVideo(stream) {
 
     setSrcObject(stream, video);
 
+    video.className = elementClass;
+
     video.muted = true;
     video.volume = 0;
 

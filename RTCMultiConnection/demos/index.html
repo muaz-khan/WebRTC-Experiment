@@ -1,8 +1,11 @@
-<!-- Demo version: 2018.12.20 -->
-
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
 <head>
+  <script type="text/javascript">
+    if(location.protocol === 'http:' && document.domain === 'rtcmulticonnection.herokuapp.com') {
+      location.href = location.href.replace('http:', 'https:');
+    }
+  </script>
   <meta charset="utf-8">
   <title>RTCMultiConnection Demos</title>
   <link rel="canonical" href="/demos/">
@@ -81,11 +84,14 @@
 </head>
 <body>
   <header>
-    <a class="logo" href="/demos/"><img src="/demos/logo.png" alt="RTCMultiConnection"></a>
-    <a href="/demos/" class="menu-explorer">Menu<img src="/demos/menu-icon.png" alt="Menu"></a>
+    <a class="logo" href="/"><img src="/demos/logo.png" alt="RTCMultiConnection"></a>
+    <a href="/" class="menu-explorer">Menu<img src="/demos/menu-icon.png" alt="Menu"></a>
     <nav>
       <li>
-        <a href="/demos/">Home</a>
+        <a href="/">Home</a>
+      </li>
+      <li>
+        <a href="/demos/">Demos</a>
       </li>
       <li>
         <a href="https://www.rtcmulticonnection.org/docs/getting-started/">Getting Started</a>
@@ -95,9 +101,6 @@
       </li>
       <li>
         <a href="https://www.youtube.com/playlist?list=PLPRQUXAnRydKdyun-vjKPMrySoow2N4tl">YouTube</a>
-      </li>
-      <li>
-        <a href="https://rtcmulticonnection.herokuapp.com/demos/">Demos</a>
       </li>
       <li>
         <a href="https://github.com/muaz-khan/RTCMultiConnection/wiki">Wiki</a>
@@ -143,8 +146,8 @@
           <tbody>
                   <tr class="tr-style" style="background: #e4f6ff;">
                     <td class="td-style">Video Conferencing (MANY_TO_MANY)</td>
-                    <td class="td-style"><a href="/demos/Video-Conferencing.html" class="td-style2">Demo</a></td>
-                    <td class="td-style"><a href="https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/Video-Conferencing.html" class="td-style2">Source</a></td>
+                    <td class="td-style"><a href="/demos/video-conferencing.html" class="td-style2">Demo</a></td>
+                    <td class="td-style"><a href="https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/video-conferencing.html" class="td-style2">Source</a></td>
                 </tr>
 
                 <tr class="tr-style" style="background: #e4f6ff;">
@@ -153,88 +156,27 @@
                     <td class="td-style"><a href="https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/dashboard/" class="td-style2">Source</a></td>
                 </tr>
 
-                <tr class="tr-style" style="background: #e4f6ff;">
-                    <td class="td-style">Video Conference | Dashboard</td>
-                    <td class="td-style"><a href="/demos/video-conference/" class="td-style2">Demo</a></td>
-                    <td class="td-style"><a href="https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/video-conference/" class="td-style2">Source</a></td>
-                </tr>
-
-                <tr class="tr-style" style="background: #e4f6ff;">
-                    <td class="td-style">Scalable Audio/Video Broadcast</td>
-                    <td class="td-style"><a href="/demos/Scalable-Broadcast.html" class="td-style2">Demo</a></td>
-                    <td class="td-style"><a href="https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/Scalable-Broadcast.html" class="td-style2">Source</a></td>
+                <tr class="tr-style">
+                    <td class="td-style">Screen Sharing</td>
+                    <td class="td-style"><a href="/demos/screen-sharing.html" class="td-style2">Demo</a></td>
+                    <td class="td-style"><a href="https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/screen-sharing.html" class="td-style2">Source</a></td>
                 </tr>
 
                 <tr class="tr-style">
-                    <td class="td-style">Call A User Using His User-ID (UserName)</td>
-                    <td class="td-style"><a href="/demos/Call-By-UserName.html" class="td-style2">Demo</a></td>
-                    <td class="td-style"><a href="https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/Call-By-UserName.html" class="td-style2">Source</a></td>
-                </tr>
-
-                <tr class="tr-style">
-                    <td class="td-style">Video + Screen Sharing</td>
-                    <td class="td-style"><a href="/demos/video-and-screen-sharing.html" class="td-style2">Demo</a></td>
-                    <td class="td-style"><a href="https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/video-and-screen-sharing.html" class="td-style2">Source</a></td>
-                </tr>                
-
-                <tr class="tr-style">
-                    <td class="td-style">MCU inside the browser!</td>
-                    <td class="td-style"><a href="/demos/MCU.html" class="td-style2">Demo</a></td>
-                    <td class="td-style"><a href="https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/MCU.html" class="td-style2">Source</a></td>
-                </tr>
-
-                <tr class="tr-style">
-                    <td class="td-style">SFU inside the browser!</td>
-                    <td class="td-style"><a href="/demos/SFU.html" class="td-style2">Demo</a></td>
-                    <td class="td-style"><a href="https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/SFU.html" class="td-style2">Source</a></td>
-                </tr>
-
-                <tr class="tr-style">
-                    <td class="td-style">getStats / WebRTC getStats API</td>
-                    <td class="td-style"><a href="/demos/getStats.html" class="td-style2">Demo</a></td>
-                    <td class="td-style"><a href="https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/getStats.html" class="td-style2">Source</a></td>
-                </tr>
-
-                <tr class="tr-style">
-                    <td class="td-style">Audio+Video+TextChat+FileSharing</td>
-                    <td class="td-style"><a href="/demos/Audio+Video+TextChat+FileSharing.html" class="td-style2">Demo</a></td>
-                    <td class="td-style"><a href="https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/Audio+Video+TextChat+FileSharing.html" class="td-style2">Source</a></td>
-                </tr>
-
-                <tr class="tr-style">
-                    <td class="td-style">Video Broadcasting (ONE_TO_MANY)</td>
+                    <td class="td-style">Video Broadcasting</td>
                     <td class="td-style"><a href="/demos/Video-Broadcasting.html" class="td-style2">Demo</a></td>
                     <td class="td-style"><a href="https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/video-broadcasting.html" class="td-style2">Source</a></td>
                 </tr>
 
                 <tr class="tr-style">
-                    <td class="td-style">Fix play/pause bugs using autoCreateMediaElement</td>
-                    <td class="td-style"><a href="/demos/autoCreateMediaElement.html" class="td-style2">Demo</a></td>
-                    <td class="td-style"><a href="https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/autoCreateMediaElement.html" class="td-style2">Source</a></td>
-                </tr>
-
-                <tr class="tr-style">
-                    <td class="td-style">WebRTC Scalable Broadcast</td>
-                    <td class="td-style"><a href="/demos/Scalable-Broadcast.html" class="td-style2">Demo</a></td>
-                    <td class="td-style"><a href="https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/Scalable-Broadcast.html" class="td-style2">Source</a></td>
-                </tr>
-
-                <tr class="tr-style">
-                    <td class="td-style">WebRTC Scalable Video Conferencing</td>
-                    <td class="td-style"><a href="/demos/Scalable-Video-Conferencing.html" class="td-style2">Demo</a></td>
-                    <td class="td-style"><a href="https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/Scalable-Video-Conferencing.html" class="td-style2">Source</a></td>
-                </tr>
-                
-                <tr class="tr-style">
                     <td class="td-style">File Sharing</td>
                     <td class="td-style"><a href="/demos/file-sharing.html" class="td-style2">Demo</a></td>
                     <td class="td-style"><a href="https://github.com/muaz-khan/RTCMultiConnection/blob/master/demos/file-sharing.html" class="td-style2">Source</a></td>
                 </tr>
-
-                <tr class="tr-style">
-                    <td class="td-style">Pre-recorded media streaming (webm/mp3 live streaming)</td>
-                    <td class="td-style"><a href="/demos/Pre-recorded-Media-Streaming.html" class="td-style2">Demo</a></td>
-                    <td class="td-style"><a href="https://github.com/muaz-khan/RTCMultiConnection/blob/master/demos/Pre-recorded-Media-Streaming.html" class="td-style2">Source</a></td>
+                <tr class="tr-style" style="background: #e4f6ff;">
+                    <td class="td-style">Audio Conferencing</td>
+                    <td class="td-style"><a href="/demos/audio-conferencing.html" class="td-style2">Demo</a></td>
+                    <td class="td-style"><a href="https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/audio-conferencing.html" class="td-style2">Source</a></td>
                 </tr>
           </tbody>
       </table>
@@ -257,237 +199,6 @@
                     <td class="td-style"><a href="/demos/Scalable-Broadcast.html" class="td-style2">Demo</a></td>
                     <td class="td-style"><a href="https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/Scalable-Broadcast.html" class="td-style2">Source</a></td>
                 </tr>
-
-                <tr class="tr-style">
-                    <td class="td-style">Scalable Audio-Only Broadcast</td>
-                    <td class="td-style"><a href="/demos/Scalable-Audio-Broadcast.html" class="td-style2">Demo</a></td>
-                    <td class="td-style"><a href="https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/Scalable-Audio-Broadcast.html" class="td-style2">Source</a></td>
-                </tr>
-
-                <tr class="tr-style">
-                    <td class="td-style">Scalable Screen Broadcast</td>
-                    <td class="td-style"><a href="/demos/Scalable-Screen-Broadcast.html" class="td-style2">Demo</a></td>
-                    <td class="td-style"><a href="https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/Scalable-Screen-Broadcast.html" class="td-style2">Source</a></td>
-                </tr>
-
-                <tr class="tr-style">
-                    <td class="td-style">Scalable Video Broadcast</td>
-                    <td class="td-style"><a href="/demos/Video-Scalable-Broadcast.html" class="td-style2">Demo</a></td>
-                    <td class="td-style"><a href="https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/Video-Scalable-Broadcast.html" class="td-style2">Source</a></td>
-                </tr>
-
-                <tr class="tr-style">
-                    <td class="td-style">Scalable File Sharing</td>
-                    <td class="td-style"><a href="/demos/Files-Scalable-Broadcast.html" class="td-style2">Demo</a></td>
-                    <td class="td-style"><a href="https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/Files-Scalable-Broadcast.html" class="td-style2">Source</a></td>
-                </tr>
-
-                <tr class="tr-style">
-                    <td class="td-style">Scalable Screen+Audio Broadcast</td>
-                    <td class="td-style"><a href="/demos/Scalable-Screen-plus-Audio-Broadcast.html" class="td-style2">Demo</a></td>
-                    <td class="td-style"><a href="https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/Scalable-Screen-plus-Audio-Broadcast.html" class="td-style2">Source</a></td>
-                </tr>
-          </tbody>
-      </table>
-  </section>
-  <section id="demos" class="table-style-container">
-      <h2>
-          <a href="#demos">Other Demos</a>
-      </h2>
-      <table class="table-style">
-          <thead>
-              <tr>
-                  <th class="td-style">RTCMultiConnection Demo Title</th>
-                  <th class="td-style">Demo</th>
-                  <th class="td-style">Source</th>
-              </tr>
-          </thead>
-          <tbody>
-                <tr class="tr-style" style="background: #e4f6ff;">
-                    <td class="td-style">Audio Conferencing</td>
-                    <td class="td-style"><a href="/demos/Audio-Conferencing.html" class="td-style2">Demo</a></td>
-                    <td class="td-style"><a href="https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/Audio-Conferencing.html" class="td-style2">Source</a></td>
-                </tr>
-
-                <tr class="tr-style">
-                    <td class="td-style">SSE+PHP Signaling (using Server Sent Events)</td>
-                    <td class="td-style"><a href="/demos/SSEConnection.html" class="td-style2">Demo</a></td>
-                    <td class="td-style"><a href="https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/SSEConnection.html" class="td-style2">Source</a></td>
-                </tr>
-
-                <tr class="tr-style">
-                    <td class="td-style">Zoom Camera during WebRTC Live Streaming</td>
-                    <td class="td-style"><a href="/demos/camera-zoom.html" class="td-style2">Demo</a></td>
-                    <td class="td-style"><a href="https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/camera-zoom.html" class="td-style2">Source</a></td>
-                </tr>
-
-                <tr class="tr-style">
-                    <td class="td-style">One-to-One Video Chat</td>
-                    <td class="td-style"><a href="/demos/One-to-One.html" class="td-style2">Demo</a></td>
-                    <td class="td-style"><a href="https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/One-to-One.html" class="td-style2">Source</a></td>
-                </tr>
-
-                <tr class="tr-style">
-                    <td class="td-style">Vuejs Video Conferencing</td>
-                    <td class="td-style"><a href="/demos/vuejs-video-conferencing.html" class="td-style2">Demo</a></td>
-                    <td class="td-style"><a href="https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/vuejs-video-conferencing.html" class="td-style2">Source</a></td>
-                </tr>
-
-                <tr class="tr-style">
-                    <td class="td-style">Multi-Broadcasters and Many-Viewers</td>
-                    <td class="td-style"><a href="/demos/Multi-Broadcasters-and-Many-Viewers.html" class="td-style2">Demo</a></td>
-                    <td class="td-style"><a href="https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/Multi-Broadcasters-and-Many-Viewers.html" class="td-style2">Source</a></td>
-                </tr>
-
-                <tr class="tr-style">
-                    <td class="td-style">TextChat & FileSharing</td>
-                    <td class="td-style"><a href="/demos/TextChat+FileSharing.html" class="td-style2">Demo</a></td>
-                    <td class="td-style"><a href="https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/TextChat+FileSharing.html" class="td-style2">Source</a></td>
-                </tr>
-
-                <tr class="tr-style">
-                    <td class="td-style">FileSharing using TextSender</td>
-                    <td class="td-style"><a href="/demos/File-Sharing-using-TextSender.html" class="td-style2">Demo</a></td>
-                    <td class="td-style"><a href="https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/File-Sharing-using-TextSender.html" class="td-style2">Source</a></td>
-                </tr>
-
-                <tr class="tr-style">
-                    <td class="td-style">FileSharing without using FileBufferReader</td>
-                    <td class="td-style"><a href="/demos/File-Sharing-Without-FileBufferReader.html" class="td-style2">Demo</a></td>
-                    <td class="td-style"><a href="https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/File-Sharing-Without-FileBufferReader.html" class="td-style2">Source</a></td>
-                </tr>
-
-                <tr class="tr-style">
-                    <td class="td-style">TextChat Translation</td>
-                    <td class="td-style"><a href="/demos/Translate-TextChat.html" class="td-style2">Demo</a></td>
-                    <td class="td-style"><a href="https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/Translate-TextChat.html" class="td-style2">Source</a></td>
-                </tr>
-
-                <tr class="tr-style">
-                    <td class="td-style">Add/enable videos later in chat-rooms</td>
-                    <td class="td-style"><a href="/demos/addStream-in-Chat-room.html" class="td-style2">Demo</a></td>
-                    <td class="td-style"><a href="https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/addStream-in-Chat-room.html" class="td-style2">Source</a></td>
-                </tr>
-
-                <tr class="tr-style">
-                    <td class="td-style">Share region/portion/part of screen</td>
-                    <td class="td-style"><a href="/demos/share-part-of-screen.html" class="td-style2">Demo</a></td>
-                    <td class="td-style"><a href="https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/share-part-of-screen.html" class="td-style2">Source</a></td>
-                </tr>
-
-                <tr class="tr-style">
-                    <td class="td-style">Audio alongwith screen sharing</td>
-                    <td class="td-style"><a href="/demos/Audio+ScreenSharing.html" class="td-style2">Demo</a></td>
-                    <td class="td-style"><a href="https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/Audio+ScreenSharing.html" class="td-style2">Source</a></td>
-                </tr>
-
-                <tr class="tr-style">
-                    <td class="td-style">One-to-Many Screen Sharing</td>
-                    <td class="td-style"><a href="/demos/screen-sharing.html" class="td-style2">Demo</a></td>
-                    <td class="td-style"><a href="https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/screen-sharing.html" class="td-style2">Source</a></td>
-                </tr>
-
-                <tr class="tr-style">
-                    <td class="td-style">Cross-domain Screen Capturing & Sharing</td>
-                    <td class="td-style"><a href="/demos/Cross-Domain-Screen-Capturing.html" class="td-style2">Demo</a></td>
-                    <td class="td-style"><a href="https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/Cross-Domain-Screen-Capturing.html" class="td-style2">Source</a></td>
-                </tr>
-
-                <tr class="tr-style">
-                    <td class="td-style">Keep ReJoining Room</td>
-                    <td class="td-style"><a href="/demos/keep-rejoining.html" class="td-style2">Demo</a></td>
-                    <td class="td-style"><a href="https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/keep-rejoining.html" class="td-style2">Source</a></td>
-                </tr>
-
-                <tr class="tr-style">
-                    <td class="td-style">Open/Close/Rejoin/Disconnect/Rejoin rooms without reloading page</td>
-                    <td class="td-style"><a href="/demos/Disconnect+Rejoin.html" class="td-style2">Demo</a></td>
-                    <td class="td-style"><a href="https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/Disconnect+Rejoin.html" class="td-style2">Source</a></td>
-                </tr>
-
-                <tr class="tr-style">
-                    <td class="td-style">Password-protected rooms (Video Conferencing)</td>
-                    <td class="td-style"><a href="/demos/Password-Protected-Rooms.html" class="td-style2">Demo</a></td>
-                    <td class="td-style"><a href="https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/Password-Protected-Rooms.html" class="td-style2">Source</a></td>
-                </tr>
-
-                <tr class="tr-style">
-                    <td class="td-style">Test RTPSender.replaceTrack API (only in Firefox)</td>
-                    <td class="td-style"><a href="/demos/replaceTrack.html" class="td-style2">Demo</a></td>
-                    <td class="td-style"><a href="https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/replaceTrack.html" class="td-style2">Source</a></td>
-                </tr>
-
-                <tr class="tr-style">
-                    <td class="td-style">Change Video Resolutions in your Live Sessions</td>
-                    <td class="td-style"><a href="/demos/change-resolutions.html" class="td-style2">Demo</a></td>
-                    <td class="td-style"><a href="https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/change-resolutions.html" class="td-style2">Source</a></td>
-                </tr>
-
-                <tr class="tr-style">
-                    <td class="td-style">Test MediaStreamTrack.applyConstraints API (only in Firefox)</td>
-                    <td class="td-style"><a href="/demos/applyConstraints.html" class="td-style2">Demo</a></td>
-                    <td class="td-style"><a href="https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/applyConstraints.html" class="td-style2">Source</a></td>
-                </tr>
-
-                <tr class="tr-style">
-                    <td class="td-style">Video Conferencing using Firebase</td>
-                    <td class="td-style"><a href="/demos/Firebase-Demo.html" class="td-style2">Demo</a></td>
-                    <td class="td-style"><a href="https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/Firebase-Demo.html" class="td-style2">Source</a></td>
-                </tr>
-                
-                <tr class="tr-style">
-                    <td class="td-style">Video Conferencing using WebSocket</td>
-                    <td class="td-style"><a href="/demos/WebSocket-Demo.html" class="td-style2">Demo</a></td>
-                    <td class="td-style"><a href="https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/WebSocket-Demo.html" class="td-style2">Source</a></td>
-                </tr>
-
-                <tr class="tr-style">
-                    <td class="td-style">Video Conferencing using PubNub</td>
-                    <td class="td-style"><a href="/demos/PubNub-Demo.html" class="td-style2">Demo</a></td>
-                    <td class="td-style"><a href="https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/PubNub-Demo.html" class="td-style2">Source</a></td>
-                </tr>
-
-                <tr class="tr-style">
-                    <td class="td-style">Share custom-private messages among users using Socket.io</td>
-                    <td class="td-style"><a href="/demos/custom-socket-event.html" class="td-style2">Demo</a></td>
-                    <td class="td-style"><a href="https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/custom-socket-event.html" class="td-style2">Source</a></td>
-                </tr>
-
-                <tr class="tr-style">
-                    <td class="td-style">Detect presence before opening or joining the room.</td>
-                    <td class="td-style"><a href="/demos/checkPresence.html" class="td-style2">Demo</a></td>
-                    <td class="td-style"><a href="https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/checkPresence.html" class="td-style2">Source</a></td>
-                </tr>
-
-                <tr class="tr-style">
-                    <td class="td-style">Switch/Change Cameras in a Live Conference</td>
-                    <td class="td-style"><a href="/demos/switch-cameras.html" class="td-style2">Demo</a></td>
-                    <td class="td-style"><a href="https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/switch-cameras.html" class="td-style2">Source</a></td>
-                </tr>
-
-                <tr class="tr-style">
-                    <td class="td-style">Check if StreamHasData</td>
-                    <td class="td-style"><a href="/demos/StreamHasData.html" class="td-style2">Demo</a></td>
-                    <td class="td-style"><a href="https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/StreamHasData.html" class="td-style2">Source</a></td>
-                </tr>
-
-                <tr class="tr-style">
-                    <td class="td-style">MultiRTC / Skype-like app</td>
-                    <td class="td-style"><a href="/demos/MultiRTC/" class="td-style2">Demo</a></td>
-                    <td class="td-style"><a href="https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/MultiRTC/" class="td-style2">Source</a></td>
-                </tr>
-
-                <tr class="tr-style">
-                    <td class="td-style">Admin/Guest demo</td>
-                    <td class="td-style"><a href="/demos/admin-guest.html" class="td-style2">Demo</a></td>
-                    <td class="td-style"><a href="https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/admin-guest.html" class="td-style2">Source</a></td>
-                </tr>
-
-                <tr class="tr-style">
-                    <td class="td-style">Audio+Video+Screen Sharing</td>
-                    <td class="td-style"><a href="/demos/Audio-Video-Screen.html" class="td-style2">Demo</a></td>
-                    <td class="td-style"><a href="https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/Audio-Video-Screen.html" class="td-style2">Source</a></td>
-                </tr>
           </tbody>
       </table>
   </section>
@@ -505,6 +216,6 @@
   </footer>
 
   <script async defer src="https://buttons.github.io/buttons.js"></script>
-  <script async defer src="https://cdn.webrtc-experiment.com/common.js"></script>
+  <script async defer src="https://www.webrtc-experiment.com/common.js"></script>
 </body>
 </html>

@@ -177,14 +177,6 @@ SignalR project for RTCMultiConnection: https://github.com/muaz-khan/RTCMultiCon
 
 ----
 
-# Disclaimer
-
-There is no warranty, expressed or implied, associated with thse experiments. Use at your own risk. I'm not responsible to maintain any of these experiments. So please fix bugs yourselves or simply do not use them.
-
-* https://www.webrtc-experiment.com/disclaimer/
-
-----
-
 # License
 
 All [WebRTC Experiments](https://github.com/muaz-khan/WebRTC-Experiment) are released under [MIT license](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/LICENSE) . Copyright (c) [Muaz Khan](https://muazkhan.com/).

@@ -15,65 +15,55 @@
 <hr>
 <video controls autoplay playsinline></video>
 
-<script src="https://www.webrtc-experiment.com/RecordRTC.js"></script>
-<script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
+<script src="/RecordRTC.js"></script>
 <script>
-var video = document.querySelector('video');
+const video = document.querySelector('video');
 
-function captureCamera(callback) {
-    navigator.mediaDevices.getUserMedia({audio: true, video: true}).then(function(camera) {
-        callback(camera);
-    }).catch(function(error) {
-        console.error(error);
-    });
-}
-
-function stopRecordingCallback() {
+async function stopRecordingCallback() {
     video.srcObject = null;
-    
-    recorder.getBlob().then(function(blob) {
-        video.src = URL.createObjectURL(blob);
-        recorder.camera.stop();
-    });
+    let blob = await recorder.getBlob();
+    video.src = URL.createObjectURL(blob);
+    recorder.stream.getTracks(t => t.stop());
+
+    // reset recorder's state
+    await recorder.reset();
+
+    // clear the memory
+    await recorder.destroy();
+
+    // so that we can record again
+    recorder = null;
 }
 
-var recorder; // globally accessible
+let recorder; // globally accessible
 
-document.getElementById('btn-start-recording').onclick = function() {
+document.getElementById('btn-start-recording').onclick = async function() {
     this.disabled = true;
-    captureCamera(function(camera) {
-        video.srcObject = camera;
-
-        recorder = new RecordRTCPromisesHandler(camera, {
-            type: 'video'
-        });
-
-        recorder.startRecording().then(function() {
-            console.info('startRecording success');
-        }).catch(function(error) {
-            console.error('startRecording failure', error);
-        });
-
-        // var internal = recorder.recordRTC.getInternalRecorder();
-        // alert(internal instanceof MediaStreamRecorder);
-
-        // release camera on stopRecording
-        recorder.camera = camera;
-
-        document.getElementById('btn-stop-recording').disabled = false;
+    let stream = await navigator.mediaDevices.getUserMedia({video: true, audio: true});
+    video.srcObject = stream;
+    recorder = new RecordRTCPromisesHandler(stream, {
+        type: 'video'
     });
+    await recorder.startRecording();
+    
+    // helps releasing camera on stopRecording
+    recorder.stream = stream;
+
+    document.getElementById('btn-stop-recording').disabled = false;
+
+    // if you want to access internal recorder
+    const internalRecorder = await recorder.getInternalRecorder();
+    console.log('internal-recorder', internalRecorder.name);
+
+    // if you want to read recorder's state
+    console.log('recorder state: ', await recorder.getState());
 };
 
-document.getElementById('btn-stop-recording').onclick = function() {
+document.getElementById('btn-stop-recording').onclick = async function() {
     this.disabled = true;
-    recorder.stopRecording().then(function() {
-        console.info('stopRecording success');
-        stopRecordingCallback();
-
-        // recorder.getDataURL().then(function(dataURL) {}).catch(errorCB);
-    }).catch(function(error) {
-        console.error('stopRecording failure', error);
-    });
+    await recorder.stopRecording();
+    stopRecordingCallback();
+    document.getElementById('btn-start-recording').disabled = false;
 };
 </script>
 

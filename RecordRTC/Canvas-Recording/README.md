@@ -16,8 +16,8 @@ Record entire webpage, part of webpage eg. a DIV, Canvas2D animatino, WebGL anim
 # How to use?
 
 ```html
-<script src="https://cdn.WebRTC-Experiment.com/RecordRTC.js"></script>
-<script src="https://cdn.webrtc-experiment.com/screenshot.js"></script>
+<script src="https://www.WebRTC-Experiment.com/RecordRTC.js"></script>
+<script src="https://www.webrtc-experiment.com/screenshot.js"></script>
 <div id="element-to-record" style="width:100%;height:100%;background:green;"></div>
 <script>
 var elementToRecord = document.getElementById('element-to-record');
@@ -36,8 +36,8 @@ recorder.stopRecording(function(url) {
 ## Record `<canvas>`
 
 ```html
-<script src="https://cdn.webrtc-experiment.com/RecordRTC/Whammy.js"></script>
-<script src="https://cdn.webrtc-experiment.com/RecordRTC/CanvasRecorder.js"></script>
+<script src="https://www.webrtc-experiment.com/RecordRTC/Whammy.js"></script>
+<script src="https://www.webrtc-experiment.com/RecordRTC/CanvasRecorder.js"></script>
 <canvas></canvas>
 <script>
 var canvas = document.querySelector('canvas');

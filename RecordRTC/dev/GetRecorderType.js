@@ -4,8 +4,8 @@
 /**
  * {@link GetRecorderType} is an inner/private helper for {@link RecordRTC}.
  * @summary It returns best recorder-type available for your browser.
- * @license {@link https://github.com/muaz-khan/RecordRTC#license|MIT}
- * @author {@link http://www.MuazKhan.com|Muaz Khan}
+ * @license {@link https://github.com/muaz-khan/RecordRTC/blob/master/LICENSE|MIT}
+ * @author {@link https://MuazKhan.com|Muaz Khan}
  * @typedef GetRecorderType
  * @class
  * @example

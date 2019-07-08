@@ -1,6 +1,7 @@
 // CodecsHandler.js
 
 var CodecsHandler = (function() {
+    // use "RTCRtpTransceiver.setCodecPreferences"
     function preferCodec(sdp, codecName) {
         var info = splitLines(sdp);
 

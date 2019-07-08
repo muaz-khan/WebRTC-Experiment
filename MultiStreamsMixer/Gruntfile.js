@@ -34,6 +34,7 @@ module.exports = function(grunt) {
             dist: {
                 src: [
                     'dev/head.js',
+                    'dev/amd.js',
                     'dev/init.js',
                     'dev/cross-browser-declarations.js',
                     'dev/start-drawing-frames.js',

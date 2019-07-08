@@ -4,8 +4,8 @@
 /**
  * {@link RecordRTCConfiguration} is an inner/private helper for {@link RecordRTC}.
  * @summary It configures the 2nd parameter passed over {@link RecordRTC} and returns a valid "config" object.
- * @license {@link https://github.com/muaz-khan/RecordRTC#license|MIT}
- * @author {@link http://www.MuazKhan.com|Muaz Khan}
+ * @license {@link https://github.com/muaz-khan/RecordRTC/blob/master/LICENSE|MIT}
+ * @author {@link https://MuazKhan.com|Muaz Khan}
  * @typedef RecordRTCConfiguration
  * @class
  * @example

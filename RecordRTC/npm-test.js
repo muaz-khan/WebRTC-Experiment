@@ -9,6 +9,8 @@ catch(e) {
     RecordRTC = require('./RecordRTC.js');
 }
 
+console.log('RecordRTC => ', Object.keys(RecordRTC));
+
 var recorder = RecordRTC({}, {
     type: 'video',
     recorderType: RecordRTC.WhammyRecorder

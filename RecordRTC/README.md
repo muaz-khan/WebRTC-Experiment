@@ -71,23 +71,23 @@ navigator.mediaDevices.getUserMedia({
 ## CDN
 
 ```html
-<!-- use 5.5.3 or any other version on cdnjs -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/RecordRTC/5.5.3/RecordRTC.js"></script>
+<!-- recommended -->
+<script src="https://www.WebRTC-Experiment.com/RecordRTC.js"></script>
+
+<!-- use 5.5.6 or any other version on cdnjs -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/RecordRTC/5.5.6/RecordRTC.js"></script>
 
 <!-- NPM i.e. "npm install recordrtc" -->
 <script src="node_modules/recordrtc/RecordRTC.js"></script>
 
 <!-- bower -->
 <script src="bower_components/recordrtc/RecordRTC.js"></script>
-
-<!-- Not Recommended -->
-<script src="https://www.WebRTC-Experiment.com/RecordRTC.js"></script>
 ```
 
 ## Configuration
 
 ```javascript
-let recorder = RecordRTC(stream, {
+const recorder = RecordRTC(stream, {
      // audio, video, canvas, gif
     type: 'video',
 
@@ -122,7 +122,7 @@ let recorder = RecordRTC(stream, {
     checkForInactiveTracks: false,
 
     // requires timeSlice above
-    onTimeStamp: functiom(timestamp) {},
+    onTimeStamp: function(timestamp) {},
 
     // both for audio and video tracks
     bitsPerSecond: 128000,
@@ -131,7 +131,7 @@ let recorder = RecordRTC(stream, {
     audioBitsPerSecond: 128000,
 
     // only for video track
-    videoBitsPerSecond: 128000
+    videoBitsPerSecond: 128000,
 
     // used by CanvasRecorder and WhammyRecorder
     // it is kind of a "frameRate"
@@ -172,8 +172,11 @@ let recorder = RecordRTC(stream, {
     frameRate: 30,
 
     // used by WebAssemblyRecorder
-    bitrate: 128000
-};
+    bitrate: 128000,
+
+    // used by MultiStreamRecorder - to access HTMLCanvasElement
+    elementClass: 'multi-streams-mixer'
+});
 ```
 
 ## MediaStream parameter
@@ -266,6 +269,8 @@ RecordRTC.prototype = {
 }
 ```
 
+Please check documentation here: [https://recordrtc.org/](https://recordrtc.org/)
+
 ## Global APIs
 
 ```javascript
@@ -341,12 +346,6 @@ DiskStorage = {
 | React.js       | [github](https://github.com/szwang/recordrtc-react) | [article](http://suzannewang.com/recordrtc/) |
 | Video.js      | [github](https://github.com/collab-project/videojs-record) | None |
 | Meteor        | [github](https://github.com/launchbricklabs/recordrtc-meteor-demo) | None |
-
-## Disclaimer
-
-There is no warranty, expressed or implied, associated with this product. Use at your own risk.
-
-* [https://www.webrtc-experiment.com/disclaimer/](https://www.webrtc-experiment.com/disclaimer/)
 
 ## License
 

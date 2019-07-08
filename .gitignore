@@ -1,2 +1,7 @@
 RecordRTC/RecordRTC-to-Nodejs/uploads/
 *.DS_Store
+ffmpeg/ffmpeg_asm.js
+node_modules
+RecordRTC/node_modules
+DetectRTC/node_modules
+RTCMultiConnection/node_modules

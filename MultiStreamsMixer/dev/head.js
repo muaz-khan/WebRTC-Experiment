@@ -1,1 +1,1 @@
-function MultiStreamsMixer(arrayOfMediaStreams) {
+function MultiStreamsMixer(arrayOfMediaStreams, elementClass) {

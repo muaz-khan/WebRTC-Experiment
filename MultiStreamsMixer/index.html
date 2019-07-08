@@ -1,5 +1,3 @@
-<script>window.demoVersion = '2019.01.14';</script>
-
 <!--
 > Muaz Khan     - www.MuazKhan.com
 > MIT License   - www.WebRTC-Experiment.com/licence
@@ -13,11 +11,10 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <link rel="author" type="text/html" href="https://plus.google.com/+MuazKhan">
     <meta name="author" content="Muaz Khan">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
 
-    <link rel="stylesheet" href="https://cdn.webrtc-experiment.com/style.css">
+    <link rel="stylesheet" href="https://www.webrtc-experiment.com/style.css">
 
     <style>
         h1 span {
@@ -38,36 +35,23 @@
         }
     </style>
 
-    <script src="https://cdn.webrtc-experiment.com/MultiStreamsMixer.js"></script>
+    <script src="/MultiStreamsMixer.js"></script>
     <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
-    <script src="https://cdn.webrtc-experiment.com/getScreenId.js"> </script>
-    <script src="https://cdn.webrtc-experiment.com/FileSelector.js"></script>
-    <script src="https://cdn.webrtc-experiment.com/RecordRTC.js"></script>
+    <script src="https://www.webrtc-experiment.com/RecordRTC.js"></script>
+    <script src="https://www.webrtc-experiment.com/FileSelector.js"></script>
 </head>
 
 <body>
     <article>
-        <header style="text-align: center;">
+        <header style="text-align: center; margin-bottom: 20px;">
             <h1>
                 MultiStreamsMixer | Mix Multiple Cameras & <br>Screens into Single Stream
             </h1>
-            <p style="margin:0;">
-                <a href="https://www.webrtc-experiment.com/">HOME</a>
-                <span> &copy; </span>
-                <a href="http://www.MuazKhan.com/" target="_blank">Muaz Khan</a> .
-                <a href="http://twitter.com/WebRTCWeb" target="_blank" title="Twitter profile for WebRTC Experiments">@WebRTCWeb</a> .
-                <a href="https://github.com/muaz-khan?tab=repositories" target="_blank" title="Github Profile">Github</a> .
-                <a href="https://github.com/muaz-khan/MultiStreamsMixer/issues?state=open" target="_blank">Latest issues</a> .
-                <a href="https://github.com/muaz-khan/MultiStreamsMixer/commits/master" target="_blank">What's New?</a>
-            </p>
         </header>
 
         <div class="github-stargazers"></div>
 
-        <section style="text-align: center; margin-top: 15px; color: red;" id="demoVersion"></section>
-        <script>var date=new Date(window.demoVersion),month=date.toLocaleString("en-us",{month:"long"}),day=date.getUTCDate();day.toString().length<=9&&(day=day.toString().length == 1 ? "0"+day : day);var year=date.getUTCFullYear(); document.getElementById("demoVersion").innerHTML="Last Updated On: <time>"+month+" "+day+" "+year+"</time>";</script>
-
-        <div style="text-align:center;">
+        <div style="text-align:center; margin-top: 20px;">
                 <a href="https://www.npmjs.com/package/multistreamsmixer" target="_blank">
                     <img src="https://img.shields.io/npm/v/multistreamsmixer.svg">
                 </a>
@@ -95,13 +79,13 @@
 
             <div id="video-preview" style="margin-top: 15px;">
                 <h2 style="display: block;"></h2>
-                <video controls playsinline autoplay></video>
+                <video controls playsinline autoplay muted=false volume=0></video>
             </div>
         </section>
 
         <script>
+            var mixer;
             var videoPreview = document.querySelector('video');
-
             var mixerOptions = document.querySelector('#mixer-options');
 
             mixerOptions.onchange = function() {
@@ -151,7 +135,7 @@
                     fullCanvasRenderHandler(screenStream, 'Your Screen!');
                     normalVideoRenderHandler(cameraStream, 'Your Camera!');
 
-                    var mixer = new MultiStreamsMixer([screenStream, cameraStream]);
+                    mixer = new MultiStreamsMixer([screenStream, cameraStream]);
 
                     mixer.frameInterval = 1;
                     mixer.startDrawingFrames();
@@ -184,18 +168,12 @@
                     });
                 }
                 else {
-                    getScreenId(function (error, sourceId, screen_constraints) {
-                        navigator.mediaDevices.getUserMedia(screen_constraints).then(function(screenStream) {
-                           afterScreenCaptured(screenStream);
-                        });
-                    });
+                    alert('getDisplayMedia API is not supported by this browser.');
                 }
             }
 
             function getMixedMultipleCameras(isCustomized) {
                 navigator.mediaDevices.getUserMedia({video: true }).then(function(cameraStream) {
-                    var mixer;
-
                     if(isCustomized === true) {
                         var fullCanvasStream = new MediaStream();
                         cameraStream.getTracks().forEach(function(track) {
@@ -257,6 +235,11 @@
                         });
 
                         mixer = new MultiStreamsMixer([cameraStream, cameraStream, cameraStream, cameraStream]);
+
+                        // try below three lines to append audio stream!
+                        // var audio = await navigator.mediaDevices.getUserMedia({audio: true});
+                        // mixer.appendStreams([audio]);
+                        // videoPreview.srcObject = mixer.getMixedStream();
                     }
 
                     mixer.frameInterval = 1;
@@ -275,13 +258,13 @@
                     navigator.mediaDevices.getUserMedia({
                         audio: true
                     }).then(function(microphoneStream) {
-                        var audioMixer = new MultiStreamsMixer([microphoneStream, mp3Stream]);
-                        // audioMixer.useGainNode = false;
+                        mixer = new MultiStreamsMixer([microphoneStream, mp3Stream]);
+                        // mixer.useGainNode = false;
                         var audioPreview = document.createElement('audio');
                         audioPreview.controls = true;
                         audioPreview.autoplay = true;
                         
-                        audioPreview.srcObject = audioMixer.getMixedStream();
+                        audioPreview.srcObject = mixer.getMixedStream();
 
                         videoPreview.replaceWith(audioPreview);
                         videoPreview = audioPreview;
@@ -298,7 +281,7 @@
                             setTimeout(looper, 1000);
                         })();
 
-                        var recorder = RecordRTC(audioMixer.getMixedStream(), {
+                        var recorder = RecordRTC(mixer.getMixedStream(), {
                             recorderType: StereoAudioRecorder
                         });
 
@@ -482,16 +465,16 @@
         </script>
 
         <section class="experiment">
-            <h2>How to use MultiStreamsMixer?</h2>
-            <pre style="background:#fdf6e3;color:#586e75"><span style="color:#93a1a1">// https://cdn.webrtc-experiment.com/MultiStreamsMixer.js</span>
+            <h2>How to use <a href="https://github.com/muaz-khan/MultiStreamsMixer">MultiStreamsMixer</a>?</h2>
+            <pre style="background:#fdf6e3;color:#586e75"><span style="color:#93a1a1">// https://www.webrtc-experiment.com/MultiStreamsMixer.js</span>
 
-<span style="color:#268bd2">var</span> audioMixer <span style="color:#859900">=</span> <span style="color:#859900">new</span> MultiStreamsMixer<span style="color:#93a1a1">(</span><span style="color:#268bd2">[</span>microphone1, microphone2<span style="color:#268bd2">]</span><span style="color:#93a1a1">)</span>;
+<span style="color:#268bd2">var</span> mixer <span style="color:#859900">=</span> <span style="color:#859900">new</span> MultiStreamsMixer<span style="color:#93a1a1">(</span><span style="color:#268bd2">[</span>microphone1, microphone2<span style="color:#268bd2">]</span><span style="color:#93a1a1">)</span>;
 
 <span style="color:#93a1a1">// record using MediaRecorder API</span>
-<span style="color:#268bd2">var</span> recorder <span style="color:#859900">=</span> <span style="color:#859900">new</span> MediaRecorder<span style="color:#93a1a1">(</span>audioMixer.getMixedStream<span style="color:#93a1a1">(</span><span style="color:#93a1a1">)</span><span style="color:#93a1a1">)</span>;
+<span style="color:#268bd2">var</span> recorder <span style="color:#859900">=</span> <span style="color:#859900">new</span> MediaRecorder<span style="color:#93a1a1">(</span>mixer.getMixedStream<span style="color:#93a1a1">(</span><span style="color:#93a1a1">)</span><span style="color:#93a1a1">)</span>;
 
 <span style="color:#93a1a1">// or share using WebRTC</span>
-rtcPeerConnection.addStream<span style="color:#93a1a1">(</span>audioMixer.getMixedStream<span style="color:#93a1a1">(</span><span style="color:#93a1a1">)</span><span style="color:#93a1a1">)</span>;
+rtcPeerConnection.addStream<span style="color:#93a1a1">(</span>mixer.getMixedStream<span style="color:#93a1a1">(</span><span style="color:#93a1a1">)</span><span style="color:#93a1a1">)</span>;
 </pre>
         </section>
 
@@ -516,7 +499,7 @@ rtcPeerConnection.addStream<span style="color:#93a1a1">(</span>audioMixer.getMix
 
     <footer>
         <p>
-            <a href="https://www.webrtc-experiment.com/">WebRTC Experiments</a> © <a href="https://plus.google.com/+MuazKhan" rel="author" target="_blank">Muaz Khan</a>
+            <a href="https://www.webrtc-experiment.com/">WebRTC Experiments</a> © <a href="https://MuazKhan.com" rel="author" target="_blank">Muaz Khan</a>
             <a href="mailto:muazkh@gmail.com" target="_blank">muazkh@gmail.com</a>
         </p>
     </footer>
@@ -525,7 +508,7 @@ rtcPeerConnection.addStream<span style="color:#93a1a1">(</span>audioMixer.getMix
     <script>
         window.useThisGithubPath = 'muaz-khan/MultiStreamsMixer';
     </script>
-    <script src="https://cdn.webrtc-experiment.com/commits.js" async></script>
+    <script src="https://www.webrtc-experiment.com/commits.js" async></script>
 </body>
 
 </html>

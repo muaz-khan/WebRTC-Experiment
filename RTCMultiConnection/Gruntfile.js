@@ -55,8 +55,6 @@ module.exports = function(grunt) {
                     'dev/getUserMedia.js',
                     'dev/StreamsHandler.js',
 
-                    'node_modules/webrtc-screen-capturing/Screen-Capturing.js', // npm install webrtc-screen-capturing
-
                     'dev/TextSenderReceiver.js',
                     'dev/FileProgressBarHandler.js',
 

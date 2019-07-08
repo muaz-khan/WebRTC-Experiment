@@ -1,7 +1,7 @@
 {
   "name": "multistreamsmixer",
   "preferGlobal": true,
-  "version": "1.0.7",
+  "version": "1.2.3",
   "author": {
     "name": "Muaz Khan",
     "email": "muazkh@gmail.com",
@@ -38,6 +38,7 @@
   "homepage": "https://www.webrtc-experiment.com/MultiStreamsMixer/",
   "_id": "multistreamsmixer@",
   "_from": "multistreamsmixer@",
+  "tonicExampleFilename": "npm-test.js",
   "devDependencies": {
     "grunt": "0.4.5",
     "grunt-bump": "0.7.0",

@@ -11,8 +11,7 @@
 
 <video controls autoplay playsinline></video>
 
-<script src="https://www.webrtc-experiment.com/RecordRTC.js"></script>
-<script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
+<script src="/RecordRTC.js"></script>
 <script src="https://www.webrtc-experiment.com/DetectRTC.js"> </script>
 <script>
 var allCameraStreams = [];
@@ -23,7 +22,6 @@ function captureAllCameras(callback) {
 
     DetectRTC.videoInputDevices.forEach(function(device, idx) {
         navigator.mediaDevices.getUserMedia({
-            audio: true,
             video: {
                 mandatory: {},
                 optional: [{
@@ -93,6 +91,17 @@ DetectRTC.load(function() {
 
         recorder.startRecording();
 
+        // MediaRecorder API does not allows adding more streams whilst recording is ACTIVE
+        false && setTimeout(function() {
+            // append audio stream after 2 seconds
+            navigator.mediaDevices.getUserMedia({audio: true}).then(function(mic) {
+                let mixer = recorder.getInternalRecorder().getMixer();
+                mixer.appendStreams([mic]);
+                video.srcObject = mixer.getMixedStream();
+                allCameraStreams.push(mic);
+            });
+        }, 2000);
+
         (function looper() {
             timeout--;
 
@@ -106,14 +115,14 @@ DetectRTC.load(function() {
 
                 video.muted = false;
 
-                video.srcObject = null;
-                video.src = URL.createObjectURL(blob);
-
                 allCameraStreams.forEach(function(stream) {
                     stream.getTracks().forEach(function(track) {
                         track.stop();
                     });
-                })
+                });
+
+                video.srcObject = null;
+                video.src = URL.createObjectURL(blob);
             });
         })();
     });

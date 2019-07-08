@@ -528,13 +528,11 @@
                         console.error('Unable to capture screen on Edge. HTTPs and version 17+ is required.');
                     });
                 } else {
-                    connection.getScreenConstraints(function(error, screen_constraints) {
-                        connection.invokeGetUserMedia({
-                            audio: isAudioPlusTab(connection) ? getAudioScreenConstraints(screen_constraints) : false,
-                            video: screen_constraints,
-                            isScreen: true
-                        }, (session.audio || session.video) && !isAudioPlusTab(connection) ? connection.invokeGetUserMedia(null, callback) : callback);
-                    });
+                    connection.invokeGetUserMedia({
+                        audio: isAudioPlusTab(connection),
+                        video: true,
+                        isScreen: true
+                    }, (session.audio || session.video) && !isAudioPlusTab(connection) ? connection.invokeGetUserMedia(null, callback) : callback);
                 }
             } else if (session.audio || session.video) {
                 connection.invokeGetUserMedia(null, callback, session);
@@ -576,28 +574,22 @@
                         console.error('Unable to capture screen on Edge. HTTPs and version 17+ is required.');
                     });
                 } else {
-                    connection.getScreenConstraints(function(error, screen_constraints) {
-                        if (error) {
-                            throw error;
-                        }
-
-                        connection.invokeGetUserMedia({
-                            audio: isAudioPlusTab(connection) ? getAudioScreenConstraints(screen_constraints) : false,
-                            video: screen_constraints,
-                            isScreen: true
-                        }, function(stream) {
-                            if ((session.audio || session.video) && !isAudioPlusTab(connection)) {
-                                var nonScreenSession = {};
-                                for (var s in session) {
-                                    if (s !== 'screen') {
-                                        nonScreenSession[s] = session[s];
-                                    }
+                    connection.invokeGetUserMedia({
+                        audio: isAudioPlusTab(connection),
+                        video: true,
+                        isScreen: true
+                    }, function(stream) {
+                        if ((session.audio || session.video) && !isAudioPlusTab(connection)) {
+                            var nonScreenSession = {};
+                            for (var s in session) {
+                                if (s !== 'screen') {
+                                    nonScreenSession[s] = session[s];
                                 }
-                                connection.invokeGetUserMedia(sessionForced, callback, nonScreenSession);
-                                return;
                             }
-                            callback(stream);
-                        });
+                            connection.invokeGetUserMedia(sessionForced, callback, nonScreenSession);
+                            return;
+                        }
+                        callback(stream);
                     });
                 }
             } else if (session.audio || session.video) {
@@ -1038,33 +1030,18 @@
                         console.error('Unable to capture screen on Edge. HTTPs and version 17+ is required.');
                     });
                 } else {
-                    connection.getScreenConstraints(function(error, screen_constraints) {
-                        if (error) {
-                            if (error === 'PermissionDeniedError') {
-                                if (session.streamCallback) {
-                                    session.streamCallback(null);
-                                }
-                                if (connection.enableLogs) {
-                                    console.error('User rejected to share his screen.');
-                                }
-                                return;
-                            }
-                            return alert(error);
-                        }
-
-                        connection.invokeGetUserMedia({
-                            audio: isAudioPlusTab(connection) ? getAudioScreenConstraints(screen_constraints) : false,
-                            video: screen_constraints,
-                            isScreen: true
-                        }, function(stream) {
-                            if ((session.audio || session.video) && !isAudioPlusTab(connection)) {
-                                connection.invokeGetUserMedia(null, function(stream) {
-                                    gumCallback(stream);
-                                });
-                            } else {
+                    connection.invokeGetUserMedia({
+                        audio: isAudioPlusTab(connection),
+                        video: true,
+                        isScreen: true
+                    }, function(stream) {
+                        if ((session.audio || session.video) && !isAudioPlusTab(connection)) {
+                            connection.invokeGetUserMedia(null, function(stream) {
                                 gumCallback(stream);
-                            }
-                        });
+                            });
+                        } else {
+                            gumCallback(stream);
+                        }
                     });
                 }
             } else if (session.audio || session.video) {
@@ -1222,17 +1199,11 @@
                         console.error('Unable to capture screen on Edge. HTTPs and version 17+ is required.');
                     });
                 } else {
-                    connection.getScreenConstraints(function(error, screen_constraints) {
-                        if (error) {
-                            return alert(error);
-                        }
-
-                        connection.invokeGetUserMedia({
-                            audio: isAudioPlusTab(connection) ? getAudioScreenConstraints(screen_constraints) : false,
-                            video: screen_constraints,
-                            isScreen: true
-                        }, (session.audio || session.video) && !isAudioPlusTab(connection) ? connection.invokeGetUserMedia(null, gumCallback) : gumCallback);
-                    });
+                    connection.invokeGetUserMedia({
+                        audio: isAudioPlusTab(connection),
+                        video: true,
+                        isScreen: true
+                    }, (session.audio || session.video) && !isAudioPlusTab(connection) ? connection.invokeGetUserMedia(null, gumCallback) : gumCallback);
                 }
             } else if (session.audio || session.video) {
                 connection.invokeGetUserMedia(null, gumCallback);
@@ -1723,19 +1694,6 @@
     if (typeof getChromeExtensionStatus !== 'undefined') {
         connection.getChromeExtensionStatus = getChromeExtensionStatus;
     }
-
-    connection.getScreenConstraints = function(callback, audioPlusTab) {
-        if (isAudioPlusTab(connection, audioPlusTab)) {
-            audioPlusTab = true;
-        }
-
-        getScreenConstraints(function(error, screen_constraints) {
-            if (!error) {
-                screen_constraints = connection.modifyScreenConstraints(screen_constraints);
-                callback(error, screen_constraints);
-            }
-        }, audioPlusTab);
-    };
 
     connection.modifyScreenConstraints = function(screen_constraints) {
         return screen_constraints;

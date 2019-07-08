@@ -3,8 +3,8 @@
 
 /**
  * GifRecorder is standalone calss used by {@link RecordRTC} to record video or canvas into animated gif.
- * @license {@link https://github.com/muaz-khan/RecordRTC#license|MIT}
- * @author {@link http://www.MuazKhan.com|Muaz Khan}
+ * @license {@link https://github.com/muaz-khan/RecordRTC/blob/master/LICENSE|MIT}
+ * @author {@link https://MuazKhan.com|Muaz Khan}
  * @typedef GifRecorder
  * @class
  * @example
@@ -21,7 +21,7 @@
 function GifRecorder(mediaStream, config) {
     if (typeof GIFEncoder === 'undefined') {
         var script = document.createElement('script');
-        script.src = 'https://cdn.webrtc-experiment.com/gif-recorder.js';
+        script.src = 'https://www.webrtc-experiment.com/gif-recorder.js';
         (document.body || document.documentElement).appendChild(script);
     }
 
