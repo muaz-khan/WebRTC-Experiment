@@ -175,7 +175,7 @@ function RecordRTCPromisesHandler(mediaStream, options) {
     };
 
     /**
-     * Destroy RecordRTC instance. Clear all recorders and objects.
+     * This method returns the internal recording object.
      * @method
      * @memberof RecordRTCPromisesHandler
      * @example
@@ -184,7 +184,7 @@ function RecordRTCPromisesHandler(mediaStream, options) {
      *     internalRecorder.addStreams([newAudioStream]);
      *     internalRecorder.resetVideoStreams([screenStream]);
      * }
-     * @returns {Object} Returns internal recording object.
+     * @returns {Object} 
      */
     this.getInternalRecorder = function() {
         return new Promise(function(resolve, reject) {

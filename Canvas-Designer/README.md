@@ -32,7 +32,7 @@ Also, you can collaborate your drawing with up to 15 users; and everything is sy
 
 Gif images:
 
-* https://cdn.webrtc-experiment.com/images/Canvas-Designer.gif
+* https://www.webrtc-experiment.com/images/Canvas-Designer.gif
 
 <img src="https://i.imgur.com/uDbfy1F.png" />
 
@@ -111,7 +111,7 @@ You can paste any text: English, Arabic, Chinese etc.
 
 ```html
 <!-- 1st step -->
-<script src="https://cdn.webrtc-experiment.com/Canvas-Designer/canvas-designer-widget.js"></script>
+<script src="https://www.webrtc-experiment.com/Canvas-Designer/canvas-designer-widget.js"></script>
 
 <!-- 2nd step -->
 <script>
@@ -119,8 +119,8 @@ var designer = new CanvasDesigner();
 
 // both links are mandatory
 // widget.html will internally use widget.js
-designer.widgetHtmlURL = 'https://cdn.webrtc-experiment.com/Canvas-Designer/widget.html'; // you can place this file anywhere
-designer.widgetJsURL = 'https://cdn.webrtc-experiment.com/Canvas-Designer/widget.js';     // you can place this file anywhere
+designer.widgetHtmlURL = 'https://www.webrtc-experiment.com/Canvas-Designer/widget.html'; // you can place this file anywhere
+designer.widgetJsURL = 'https://www.webrtc-experiment.com/Canvas-Designer/widget.js';     // you can place this file anywhere
 </script>
 
 <!-- 3rd i.e. last step -->
@@ -233,7 +233,7 @@ var y = 0;
 var width = designer.iframe.clientWidth;
 var height = designer.iframe.clientHeight;
 
-var image = 'https://cdn.webrtc-experiment.com/images/RTCMultiConnection-STUN-TURN-usage.png';
+var image = 'https://www.webrtc-experiment.com/images/RTCMultiConnection-STUN-TURN-usage.png';
 
 var points = [
     ['image', [image, x, y, width, height, 1], ['2', '#6c96c8', 'rgba(0,0,0,0)', '1', 'source-over', 'round', 'round', '15px "Arial"']]
@@ -678,12 +678,6 @@ ctrl+v (paste last-copied shape)
 2. [Oleg Aliullov](https://github.com/rashidovich2)
 
 Please make pull-request to update this list.
-
-# Disclaimer
-
-There is no warranty, expressed or implied, associated with this product. Use at your own risk.
-
-* https://www.webrtc-experiment.com/disclaimer/
 
 # License
 

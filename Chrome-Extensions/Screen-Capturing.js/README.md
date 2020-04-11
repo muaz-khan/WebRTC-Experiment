@@ -59,7 +59,7 @@ Download + Modify + Publish desktopCapture extension yourselves. You need to cha
 CDN link:
 
 ```html
-<script src="https://cdn.webrtc-experiment.com/Screen-Capturing.js"></script>
+<script src="https://www.webrtc-experiment.com/Screen-Capturing.js"></script>
 <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
 ```
 
@@ -270,7 +270,7 @@ First step, install this chrome extension:
 Now use `getScreenId.js` (on any HTTPs page):
 
 ```html
-<script src="https://cdn.WebRTC-Experiment.com/getScreenId.js"></script>
+<script src="https://www.WebRTC-Experiment.com/getScreenId.js"></script>
 <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
 <video controls autoplay></video>
 <script>

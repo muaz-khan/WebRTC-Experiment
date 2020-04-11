@@ -6,7 +6,6 @@ rmc-debug.log
 _site
 Gemfile.lock
 *.pyc
-dist/
 .vscode/
 v2.2.2
 node_modules

@@ -78,21 +78,23 @@ window.addEventListener('message', function(event) {
         }
 
         if (index === -1) {
-            if (points.length && points[points.length - 1][0] === 'pencil') {
+            if (points.length && (points[points.length - 1][0] === 'pencil' || points[points.length - 1][0] === 'marker')) {
                 var newArray = [];
                 var length = points.length;
-                var reverse = points.reverse();
-                var ended;
-                for (var i = 0; i < length; i++) {
-                    var point = reverse[i];
-                    if (point[3] == 'start') {
-                        ended = true;
-                    } else if (ended) {
-                        newArray.push(point);
-                    }
-                }
 
-                points = newArray.reverse();
+                /* modification start*/
+                var index;
+                for (var i = 0; i < length; i++) {
+                    var point = points[i];
+                    if (point[3] === 'start') index = i;
+                }
+                var copy = [];
+                for (var i = 0; i < index; i++) {
+                    copy.push(points[i]);
+                }
+                points = copy;
+                /*modification ends*/
+
                 drawHelper.redraw();
                 syncPoints(true);
                 return;

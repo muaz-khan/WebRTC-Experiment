@@ -1,28 +1,40 @@
 var server = require('http'),
     url = require('url'),
     path = require('path'),
-    fs = require('fs');
+    fs = require('fs'),
+    cwd = process.cwd();
+
+function responseError(response, code, msg) {
+    response.writeHead(code, {
+        'Content-Type': 'text/plain'
+    });
+    response.write(msg);
+    response.end();
+}
 
 function serverHandler(request, response) {
     var uri = url.parse(request.url).pathname,
-        filename = path.join(process.cwd(), uri);
+        filename = path.join(cwd, uri);
 
     var stats;
+
+    filename = path.resolve(filename);
+    if (filename.indexOf(cwd) !== 0) {
+        responseError(response, 404, 
+            '404 Not Found: ' + path.join('/', uri) + '\n');
+        return;
+    }
 
     try {
         stats = fs.lstatSync(filename);
     } catch (e) {
-        response.writeHead(404, {
-            'Content-Type': 'text/plain'
-        });
-        response.write('404 Not Found: ' + path.join('/', uri) + '\n');
-        response.end();
+        responseError(response, 404, 
+            '404 Not Found: ' + path.join('/', uri) + '\n');
         return;
     }
     
     if (fs.statSync(filename).isDirectory()) {
         filename += '/index.html';
-        
     }
 
     var contentType;

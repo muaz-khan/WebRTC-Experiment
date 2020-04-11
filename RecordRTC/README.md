@@ -51,11 +51,11 @@ navigator.mediaDevices.getUserMedia({
 
 | Browser        | Operating System                    | Features               |
 | -------------  |-------------                        |---------------------   |
-| Google Chrome  | Windows + MacOSX + Ubuntu + Android | audio + video + screen |
-| Firefox        | Windows + MacOSX + Ubuntu + Android | audio + video + screen |
-| Opera          | Windows + MacOSX + Ubuntu + Android | audio + video + screen |
+| Google Chrome  | Windows + macOS + Ubuntu + Android  | audio + video + screen |
+| Firefox        | Windows + macOS + Ubuntu + Android  | audio + video + screen |
+| Opera          | Windows + macOS + Ubuntu + Android  | audio + video + screen |
 | Edge           | Windows 10                          | only audio             |
-| Safari         | MacOSX + iOS (iphone/ipad)          | audio + video          |
+| Safari         | macOS + iOS (iPhone/iPad)           | audio + video          |
 
 ## Codecs Support
 
@@ -74,8 +74,8 @@ navigator.mediaDevices.getUserMedia({
 <!-- recommended -->
 <script src="https://www.WebRTC-Experiment.com/RecordRTC.js"></script>
 
-<!-- use 5.5.6 or any other version on cdnjs -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/RecordRTC/5.5.6/RecordRTC.js"></script>
+<!-- use 5.5.9 or any other version on cdnjs -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/RecordRTC/5.5.9/RecordRTC.js"></script>
 
 <!-- NPM i.e. "npm install recordrtc" -->
 <script src="node_modules/recordrtc/RecordRTC.js"></script>

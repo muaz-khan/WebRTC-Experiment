@@ -77,6 +77,12 @@ function checkDeviceSupport(callback) {
     var alreadyUsedDevices = {};
 
     navigator.enumerateDevices(function(devices) {
+        MediaDevices = [];
+
+        audioInputDevices = [];
+        audioOutputDevices = [];
+        videoInputDevices = [];
+
         devices.forEach(function(_device) {
             var device = {};
             for (var d in _device) {

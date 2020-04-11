@@ -30,7 +30,7 @@ export class MultiStreamsMixer {
     this.context = this.canvas.getContext('2d');
     this.canvas.style = 'opacity:0;position:absolute;z-index:-1;top: -100000000;left:-1000000000; margin-top:-1000000000;margin-left:-1000000000;';
     this.canvas.className = this.elementClass;
-    (document.body || document.documentElement).appendChild(canvas);
+    (document.body || document.documentElement).appendChild(this.canvas);
     this.disableLogs = false;
     this.frameInterval = 10;
     this.width = 360;

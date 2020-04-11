@@ -4,7 +4,7 @@
 
 * https://chrome.google.com/webstore/detail/recordrtc/ndcljioonkecdnaaihodjgiliohngojp
 
-<a target="_blank" href="https://chrome.google.com/webstore/detail/recordrtc/ndcljioonkecdnaaihodjgiliohngojp"><img alt="Install RecordRTC Extension" src="https://webrtcweb.com/RecordRTC/RecordRTC-Extension.png" title="Click here to install this sample from the Chrome Web Store" /></a>
+<a target="_blank" href="https://chrome.google.com/webstore/detail/recordrtc/ndcljioonkecdnaaihodjgiliohngojp"><img alt="Install RecordRTC Extension" src="https://www.webrtc-experiment.com/images/recordrtc-icon.png" title="Click here to install this sample from the Chrome Web Store" /></a>
 
 ## Call From Your Own WebSite
 
@@ -92,10 +92,6 @@ const getSupoortedFormats = [{
 1. First step is to initialize the constructor `new RecordRTC_Extension()`.
 2. Second step is, pass two parameters on `startRecording`. First paramter is named as `recording-formats` and last parameter is named as `recording-start-callback`.
 3. Manually stop the recording using `stopRecording` method. Callback contains two arguments. First argument is `Blob` object and second argument is `error` string.
-
-## Disclaimer
-
-* https://www.webrtc-experiment.com/disclaimer/
 
 ## License
 

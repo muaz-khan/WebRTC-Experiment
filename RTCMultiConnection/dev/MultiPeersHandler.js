@@ -30,9 +30,9 @@ function MultiPeers(connection) {
             }
             return allPeers;
         },
-        forEach: function(callbcak) {
+        forEach: function(callback) {
             this.getAllParticipants().forEach(function(participant) {
-                callbcak(connection.peers[participant]);
+                callback(connection.peers[participant]);
             });
         },
         send: function(data, remoteUserId) {

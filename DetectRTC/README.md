@@ -128,7 +128,7 @@ node npm-test.js
 You can even link specific versions:
 
 ```html
-<script src="https://github.com/muaz-khan/DetectRTC/releases/download/1.3.6/DetectRTC.js"></script>
+<script src="https://github.com/muaz-khan/DetectRTC/releases/download/1.4.0/DetectRTC.js"></script>
 ```
 
 <img src="https://www.webrtc-experiment.com/images/DetectRTC.png" style="width:100%;" />
@@ -188,11 +188,11 @@ DetectRTC.load(function() {
 
 # `DetectRTC.version`
 
-DetectRTC is supporting `version` property since `1.3.6`.
+DetectRTC is supporting `version` property since `1.4.0`.
 
 ```javascript
-if(DetectRTC.version === '1.3.6') {
-    alert('We are using DetectRTC version 1.3.6');
+if(DetectRTC.version === '1.4.0') {
+    alert('We are using DetectRTC version 1.4.0');
 }
 ```
 
