@@ -3665,6 +3665,11 @@ function WhammyRecorder(mediaStream, config) {
         frameInterval = typeof frameInterval !== 'undefined' ? frameInterval : 10;
 
         var duration = new Date().getTime() - lastTime;
+        
+        // Tweak for Android Chrome
+        if(video.paused)
+            video.play();
+            
         if (!duration) {
             return setTimeout(drawFrames, frameInterval, frameInterval);
         }
