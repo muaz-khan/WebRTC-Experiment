@@ -1,4 +1,4 @@
-﻿// Last updated On: January 18, 2019
+// Last updated On: January 18, 2019
 
 // Muaz Khan      - www.MuazKhan.com
 // MIT License    - www.WebRTC-Experiment.com/licence
@@ -237,7 +237,12 @@ var conference = function(config) {
             });
         }
 
-        if (config.attachStream) config.attachStream.stop();
+        if (config.attachStream){
+            let tracks = config.attachStream.getTracks();
+            tracks.forEach(function(track) {
+                track.stop();
+            });
+        }
     }
 
     window.addEventListener('beforeunload', function() {
