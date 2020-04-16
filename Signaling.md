@@ -615,7 +615,7 @@ http://www.RTCMultiConnection.org/docs/openSignalingChannel/
 
 # A few other resources:
 
-1. https://www.webrtc-experiment.com/docs/WebRTC-Signaling-Concepts.html
+1. https://codelabs.developers.google.com/codelabs/webrtc-web/#0
 2. http://www.RTCMultiConnection.org/FAQ/
 3. http://www.RTCMultiConnection.org/docs/sessionid/
 4. http://www.RTCMultiConnection.org/docs/channel-id/
