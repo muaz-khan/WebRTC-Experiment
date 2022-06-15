@@ -484,7 +484,7 @@ function MultiStreamsMixer(arrayOfMediaStreams, elementClass) {
                 self.audioContext = Storage.AudioContextConstructor;
                 
                 var audioSource = self.audioContext.createMediaStreamSource(stream);
-                // self.audioDestination = self.audioContext.createMediaStreamDestination();
+                self.audioDestination = self.audioContext.createMediaStreamDestination();
                 audioSource.connect(self.audioDestination);
 
                 newStream.addTrack(self.audioDestination.stream.getTracks().filter(function(t) {
